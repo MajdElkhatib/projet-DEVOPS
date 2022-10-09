@@ -10,5 +10,18 @@ pipeline {
                 sh 'find . -name "*.sh" -exec shellcheck {} \\; -print'
             }
         }
+        stage('ansible playbook'){
+            agent any
+            steps{
+                sh 'cd ansible'
+                ansiblePlaybook{
+                    inventory: "prod.yml",
+                    installation: "ansible",
+                    limite: "",
+                    playbook: "./play.yml",
+                    extras: ""
+                }
+            }
+        }
     }
 }
