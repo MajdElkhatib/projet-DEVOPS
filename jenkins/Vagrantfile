@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+module OS
+  def OS.windows?
+          (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+  end
+
+  def OS.mac?
+          (/darwin/ =~ RUBY_PLATFORM) != nil
+  end
+  def OS.unix?
+          !OS.windows?
+  end
+  def OS.linux?
+          OS.unix? and not OS.mac?
+  end
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.define "jenkins" do |jenkins|
+    jenkins.vm.box = "geerlingguy/centos7"
+    if OS.linux?
+      jenkins.vm.network "private_network",  type: "static", ip: "192.168.99.12", virtualbox__intnet: "08net"
+    elsif OS.windows?
+      jenkins.vm.network "private_network",  type: "static", ip: "192.168.99.12"
+    else
+        puts 'OS not managed'
+    end
+    jenkins.vm.hostname = "jenkins"
+    jenkins.vm.provider "virtualbox" do |v|
+      v.name = "jenkins"
+      v.memory = 2048
+      v.cpus = 2
+    end
+    jenkins.vm.provision :shell do |shell|
+      shell.path = "install_jenkins.sh"
+    end
+  end
+end
