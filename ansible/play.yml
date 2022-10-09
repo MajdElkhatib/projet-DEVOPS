@@ -1,4 +1,4 @@
-- name: "installation de wordpress"
+- name: "installation de odoo"
   hosts: prod-odoo
   roles:
     - role: odoo_role
