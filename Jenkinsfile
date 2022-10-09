@@ -12,15 +12,12 @@ pipeline {
         }
         stage('ansible playbook'){
             agent any
-            steps{
-                sh 'cd ansible'
-                ansiblePlaybook{
-                    inventory: "prod.yml",
-                    installation: "ansible",
-                    limite: "",
-                    playbook: "./play.yml",
-                    extras: ""
-                }
+            ansiblePlaybook{
+                inventory: "./ansible/prod.yml",
+                installation: "ansible",
+                limite: "",
+                playbook: "./ansible/play.yml",
+                extras: ""
             }
         }
     }
