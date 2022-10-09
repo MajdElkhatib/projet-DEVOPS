@@ -1,0 +1,14 @@
+---
+# defaults file for pgadmin_role
+PGADMIN_EMAIL: "user@domain.com"
+PGADMIN_PASS: "odoo_pgadmin_password"
+PGADMIN_PORT: "8082"
+DB_USER: "odoo"
+DB_PASS: "odoo"
+DB_NAME: "postgres"
+POSTGRES_PORT: "5432"
+ODOO_PORT: "8081"
+IC_PORT: "80"
+HOST_IP: "192.168.99.12"
+IMAGE_NAME: "sh0t1m3/ic-webapp:1.0"
+

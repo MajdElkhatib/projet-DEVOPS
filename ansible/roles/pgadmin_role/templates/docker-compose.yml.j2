@@ -1,0 +1,32 @@
+version: '3.3'
+services:
+    pgadmin:
+        container_name: pgadmin
+        image: dpage/pgadmin4
+        networks:
+            - ic_network
+        environment:
+            - 'PGADMIN_DEFAULT_EMAIL={{ PGADMIN_EMAIL }}'
+            - 'PGADMIN_DEFAULT_PASSWORD={{ PGADMIN_PASS }}'
+        ports:
+            - "{{ PGADMIN_PORT }}:80"
+        volumes:
+            - /home/{{ ansible_user }}/files/servers.json:/pgadmin4/servers.json
+            - 'pgadmin_data:/var/lib/pgadmin'
+
+    ic-webapp:
+        container_name: ic-webapp
+        ports:
+            - "{{ IC_PORT }}:8080"
+        environment:
+            - "ODOO_URL=http://{{ HOST_IP }}:{{ ODOO_PORT }}/"
+            - "PGADMIN_URL=http://{{ HOST_IP }}:{{ PGADMIN_PORT }}/"
+        image: '{{ IMAGE_NAME }}'
+        networks:
+            - ic_network
+
+volumes:
+    pgadmin_data:
+networks:
+    ic_network:
+      driver: bridge

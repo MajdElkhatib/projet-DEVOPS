@@ -1,0 +1,24 @@
+---
+# tasks file for pgadmin_role
+
+- name: create files directory
+	  file:
+	    path: "/home/{{ ansible_user }}/files/"
+	    recurse: yes
+	    state: directory
+	
+- name: générer docker-compose 
+  template:
+    src: "docker-compose.yml.j2"
+    dest: "/home/{{ ansible_user }}/files/docker-compose.yml"
+
+- name: pgadmin config file servers
+  template:
+    src: "servers.json.j2"
+    dest: "/home/{{ ansible_user }}/files/servers.json"
+
+- name: "Deploy"
+  command: "docker-compose up -d"
+  args:
+    chdir: "/home/{{ ansible_user }}/files"
+

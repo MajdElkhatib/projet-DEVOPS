@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+
+    postgres:
+        environment:
+            - POSTGRES_USER={{ DB_USER }}
+            - POSTGRES_PASSWORD={{ DB_PASS }}
+            - POSTGRES_DB={{ DB_NAME }}
+        networks:
+            - ic_network
+        volumes:
+            - 'pgdata:/var/lib/postgresql/data'
+        container_name: postgres
+        image: 'postgres:13'
+        ports:
+            - '{{ POSTGRES_PORT }}:5432'
+    odoo:
+        depends_on:
+            - postgres
+        ports:
+            - '{{ ODOO_PORT }}:8069'
+        container_name: odoo
+        networks:
+            - ic_network
+        volumes:
+            - 'odoo-web-data:/var/lib/odoo'
+        environment:
+            - USER={{ DB_USER }}
+            - PASSWORD={{ DB_PASS }}
+            - HOST={{ DB_NAME }}
+        image: odoo:13
+
+volumes:
+    odoo-web-data:
+    pgdata:
+networks:
+    ic_network:
+      driver: bridge
