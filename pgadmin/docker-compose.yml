@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+    pgadmin:
+        container_name: pgadmin
+        image: dpage/pgadmin4
+        networks:
+            - ic_network
+        environment:
+            - 'PGADMIN_DEFAULT_EMAIL=user@domain.com'
+            - 'PGADMIN_DEFAULT_PASSWORD=odoo_pgadmin_password'
+        ports:
+            - "8082:80"
+        volumes:
+            - ${PWD}/servers.json:/pgadmin4/servers.json
+            - 'pgadmin_data:/var/lib/pgadmin'
+
+    ic-webapp:
+        container_name: ic-webapp
+        ports:
+            - "80:8080"
+        environment:
+            - "ODOO_URL=http://192.168.99.10:8081/"
+            - "PGADMIN_URL=http://192.168.99.10:8082/"
+        image: 'sh0t1m3/ic-webapp:1.0'
+        networks:
+            - ic_network
+
+volumes:
+    pgadmin_data:
+networks:
+    ic_network:
+      driver: bridge
+      name: ic_network
