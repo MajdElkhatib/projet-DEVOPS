@@ -1,13 +1,13 @@
 {
-  "Servers": {
-    "1": {
-      "Name": "Minimally Defined Server",
-      "Group": "Server Group 1",
-      "Port": 5432,
-      "Username": "odoo_user",
-      "Host": "postgres",
-      "SSLMode": "prefer",
-      "MaintenanceDB": "postgres"
+    "Servers": {
+        "1": {
+            "Name": "Minimally Defined Server",
+            "Group": "Server Group 1",
+            "Port": 5432,
+            "Username": "odoo_user",
+            "Host": "192.168.99.20",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "postgres"
+        }
     }
-  }
 }

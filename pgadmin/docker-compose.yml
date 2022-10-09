@@ -19,8 +19,8 @@ services:
         ports:
             - "80:8080"
         environment:
-            - "ODOO_URL=http://192.168.99.10:8081/"
-            - "PGADMIN_URL=http://192.168.99.10:8082/"
+            - "ODOO_URL=http://192.168.99.20:8081/"
+            - "PGADMIN_URL=http://192.168.99.21:8082/"
         image: 'sh0t1m3/ic-webapp:1.0'
         networks:
             - ic_network
