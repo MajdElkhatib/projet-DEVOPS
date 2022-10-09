@@ -1,0 +1,38 @@
+# Liste des plugins de pre-commit
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+        - check-added-large-files # prevents giant files from being committed.
+        - # check-ast # simply checks whether the files parse as valid python.
+        - check-byte-order-marker # forbids files which have a utf-8 byte-order marker.
+        - # check-builtin-literals # requires literal syntax when initializing empty or zero python builtin types.
+        - check-case-conflict # checks for files that would conflict in case-insensitive filesystems.
+        - # check-docstring-first # checks a common error of defining a docstring after code.
+        - check-executables-have-shebangs # ensures that (non-binary) executables have a shebang.
+        - check-json # checks json files for parseable syntax.
+        - check-shebang-scripts-are-executable # ensures that (non-binary) files with a shebang are executable.
+        - pretty-format-json # sets a standard for formatting json files.
+        - check-merge-conflict # checks for files that contain merge conflict strings.
+        - check-symlinks # checks for symlinks which do not point to anything.
+        - # check-toml # checks toml files for parseable syntax.
+        - check-vcs-permalinks # ensures that links to vcs websites are permalinks.
+        - check-xml # checks xml files for parseable syntax.
+        - check-yaml # checks yaml files for parseable syntax.
+        - # debug-statements # checks for debugger imports and py37+ `breakpoint()` calls in python source.
+        - destroyed-symlinks # detects symlinks which are changed to regular files with a content of a path which that symlink was pointing to.
+        - detect-aws-credentials # detects *your* aws credentials from the aws cli credentials file.
+        - detect-private-key # detects the presence of private keys.
+        - # double-quote-string-fixer # replaces double quoted strings with single quoted strings.
+        - end-of-file-fixer # ensures that a file is either empty, or ends with one newline.
+        - # file-contents-sorter # sorts the lines in specified files (defaults to alphabetical). you must provide list of target files as input in your .pre-commit-config.yaml file.
+        - # fix-byte-order-marker # removes utf-8 byte order marker.
+        - # fix-encoding-pragma # adds # -*- coding: utf-8 -*- to the top of python files.
+        - forbid-new-submodules # prevents addition of new git submodules.
+        - forbid-submodules # forbids any submodules in the repository
+        - mixed-line-ending # replaces or checks mixed line ending.
+        - # name-tests-test # verifies that test files are named correctly.
+        - # no-commit-to-branch # don't commit to branch
+        - requirements-txt-fixer # sorts entries in requirements.txt.
+        - # sort-simple-yaml # sorts simple yaml files which consist only of top-level keys, preserving comments and blocks.
+        - trailing-whitespace # trims trailing whitespace.
