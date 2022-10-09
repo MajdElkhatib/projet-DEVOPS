@@ -20,7 +20,7 @@ module OS
 end
 
 Vagrant.configure("2") do |config|
-  array = ["odoo", "pgadmin-icwebapp"]        
+  array = ["odoo", "pgadmin-icwebapp"]
   array.each_with_index do |val, index|
         config.vm.define "docker-#{val}" do |docker|
              docker.vm.box = "geerlingguy/centos7"
