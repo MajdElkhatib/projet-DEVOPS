@@ -5,11 +5,7 @@ pipeline {
             agent any
             steps {
                 sh '''
-                SHELLSCRIPT_PATH="$(which shellcheck)"
-                if [ $SHELLSCRIPT_PATH == "" ]; then
-                    yum -y install epel-release
-                    yum -y install ShellCheck
-                fi
+                SHELLSCRIPT_PATH="$(which shellcheck)"; if [ $SHELLSCRIPT_PATH == "" ]; then yum -y install epel-release;  yum -y install ShellCheck; fi
                 '''
                 sh 'find . -name "*.sh" -exec shellcheck {} \\; -print'
             }
