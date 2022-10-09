@@ -1,6 +1,14 @@
 pipeline {
     agent any
     stages {
+        stage('Install tools'){
+            agent any
+            steps {
+                sh 'yum -y install epel-release'
+                sh 'yum -y install ShellCheck'
+                sh 'yum -y install ansible-2.9.27'
+            }
+        }
         stage('check_scripts') {
             agent any
             steps {
@@ -10,14 +18,10 @@ pipeline {
                 sh 'find . -name "*.sh" -exec shellcheck {} \\; -print'
             }
         }
-        stage('ansible playbook'){
+        stage('Play Playbook'){
             agent any
-            ansiblePlaybook{
-                inventory: "./ansible/prod.yml",
-                installation: "ansible",
-                limite: "",
-                playbook: "./ansible/play.yml",
-                extras: ""
+            steps{
+                ansiblePlaybook disableHostKeyChecking: true, installation: 'ansible', inventory: 'ansible/prods.yml', playbook: 'ansible/play.yml'
             }
         }
     }
