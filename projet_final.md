@@ -1,3 +1,8 @@
+---
+title: "PROJET FINAL DEVOPS"
+author: "Romain REVEL"
+date: "09/10/2022"
+---
 # PROJET FINAL DEVOPS
 
 ## I) Introduction
@@ -27,9 +32,14 @@ Liens utiles:
 - Docker Hub officiel: <https://hub.docker.com/r/dpage/pgadmin4/>
 
 Le site web vitrine a été conçu par l’équipe de développeurs de l’entreprise et les fichiers relatifs à cette application web se trouvent dans le repo suscité: <https://github.com/sadofrazer/ic-webapp.git>. Il est de votre responsabilité de conteneuriser cette application tout en permettant la saisie des différentes URLs des applications (Odoo et pgadmin) par le biais des variables d’environnement.
-Ci-dessous un aperçu du site vitrine attendu.
 
-NB : L’image créée devra permettre de lancer un conteneur permettant d’héberger ce site web et ayant les liens adéquats permettant d’accéder à nos applications internes.
+Ci-dessous un aperçu du site vitrine attendu:
+
+![Schéma Kubernetes](presentation/images/webapp.png)
+
+**NB:** L’image créée devra permettre de lancer un conteneur permettant d’héberger ce site web et ayant les liens adéquats permettant d’accéder à nos applications internes.
+
+<div style="page-break-after: always; visibility: hidden">\pagebreak</div>
 
 ## II) Conteneurisation de l’application web
 
@@ -71,6 +81,8 @@ correspondantes et assurez-vous que les données de la base de données Odoo soi
 sauvegardées dans un répertoire de votre choix sur votre hôte.
 
 **NB:** respectez l’architecture ci-dessus.
+
+<!--<div style="page-break-after: always; visibility: hidden">\pagebreak</div>-->
 
 ### c. Déploiement PgAdmin
 
@@ -126,6 +138,8 @@ Notez également que l’ensemble de ces ressources devront être créées dans 
 Lancez l’exécution de vos différents manifests afin de déployer les différents services ou applications
 demandés, testez le bon fonctionnement de vos différentes application et n’hésitez pas à prendre des captures d’écran le plus possible afin de consolider votre travail dans un rapport final qui présentera dans les moindres détails ce que vous avez fait.
 
+<!--<div style="page-break-after: always; visibility: hidden">\pagebreak</div>-->
+
 ## IV) Partie 2 : Mise en place d'un pipeline CI/CD à l'aide de JENKINS et de ANSIBLE
 
 L'objectif de ICGROUP est en effet de mettre sur pied un pipeline CI/CD permettant l'intégration et le
@@ -155,10 +169,9 @@ Les étapes sont les suivantes:
 1. Créer un docker-compose permettant de déployer entièrement l’application Odoo tout en créant un réseau docker et un volume pour faire persister les données de la BDD
 2. Créer un docker-compose permettant de déployer l’application pgadmin avec les paramètres décrits dans la partie1 (fichier servers.json et persistance des données).
 3. A l’aide de ces **docker-compose** comme Template, créer deux rôles **ansible** que vous appellerez odoo_role et pgadmin_role, dans ces rôles vous devez:
-
-   i. Variabiliser le nom du réseau et du volume qui seront créés dans docker
-   ii. Variabiliser le répertoire de montage pour le volume, permettant à l’utilisateur de définir s’il le souhaite un autre chemin de fichier en local sur son serveur où il souhaite stocker les données de la BDD Odoo
-   iii. Variabiliser le nom des services et des containers qui seront créés par ce docker-compose.
+   - Variabiliser le nom du réseau et du volume qui seront créés dans docker
+   - Variabiliser le répertoire de montage pour le volume, permettant à l’utilisateur de définir s’il le souhaite un autre chemin de fichier en local sur son serveur où il souhaite stocker les données de la BDD Odoo
+   - Variabiliser le nom des services et des containers qui seront créés par ce docker-compose.
 
 **NB:** Ces rôles devront être appelés dans votre pipeline lors de la phase de déploiement avec les variabilisations qui vont bien.
 
@@ -184,6 +197,8 @@ Après avoir créé le **Dockerfile** qui va bien, Vous devrez créer le **Jenki
 ### e. Test de fonctionnement et rapport final
 
 Lancez l’exécution de votre pipeline **manuellement** pour une première fois, ensuite **automatiquement** après modification de votre fichier releases.txt (version : 1.1). Vérifiez que toutes les applications sont déployées et fonctionnent correctement. N’hésitez pas à prendre des captures d’écran le plus possible afin de consolider votre travail dans un rapport final qui présentera dans les moindres détails ce que vous avez fait.
+
+<div style="page-break-after: always; visibility: hidden">\pagebreak</div>
 
 ## V) ANNEXE
 
