@@ -1,0 +1,47 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# To enable zsh, please set ENABLE_ZSH env var to "true" before launching vagrant up
+#   + On windows => $env:ENABLE_ZSH="true"
+#   + On Linux  => export ENABLE_ZSH="true"
+
+module OS
+        def OS.windows?
+                (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+        end
+
+        def OS.mac?
+                (/darwin/ =~ RUBY_PLATFORM) != nil
+        end
+        def OS.unix?
+                !OS.windows?
+        end
+        def OS.linux?
+                OS.unix? and not OS.mac?
+        end
+end
+
+Vagrant.configure("2") do |config|
+  dockers = 2 
+  (1..dockers).each do |i|
+        config.vm.define "docker#{i}" do |docker|
+             docker.vm.box = "geerlingguy/centos7"
+                if OS.linux?
+                        docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{i}", virtualbox__intnet: "08net"
+                elsif OS.windows?
+                        docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{i}"
+                else
+                        puts 'OS not managed'
+                end
+                docker.vm.hostname = "docker#{i}"
+                docker.vm.provider "virtualbox" do |v|
+                        v.name = "docker"
+                        v.memory = 1024
+                        v.cpus = 2
+                end
+                docker.vm.provision :shell do |shell|
+                        shell.path = "install_docker.sh"
+                        shell.env = { 'ENABLE_ZSH' => ENV['ENABLE_ZSH'] }
+                end
+        end
+  end
+end
