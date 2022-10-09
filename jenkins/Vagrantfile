@@ -5,7 +5,6 @@ module OS
   def OS.windows?
           (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
   end
-
   def OS.mac?
           (/darwin/ =~ RUBY_PLATFORM) != nil
   end
@@ -21,7 +20,14 @@ Vagrant.configure("2") do |config|
   config.vm.define "jenkins" do |jenkins|
     jenkins.vm.box = "geerlingguy/centos7"
     if OS.linux?
-      jenkins.vm.network "private_network",  type: "static", ip: "192.168.99.12", virtualbox__intnet: "08net"
+      # Sous linux, il FAUT préciser le nom du réseau hôte
+      # https://www.vagrantup.com/docs/providers/virtualbox/networking
+      # Dans Virtualbox > Fichier > Gestionnaire de réseau hôte (CTRL + H):
+      # - Vérifier la présence de vboxnet0, sinon le créer
+      # - Vérifier l'adresse IPv4 et le masque, sinon les modifier (à faire 2 fois pour être pris en compte)
+      #
+      # Vérifier avec "ip -a" le nom, l'IP et le masque
+      jenkins.vm.network "private_network",  type: "static", ip: "192.168.99.12", name: "vboxnet0"
     elsif OS.windows?
       jenkins.vm.network "private_network",  type: "static", ip: "192.168.99.12"
     else
