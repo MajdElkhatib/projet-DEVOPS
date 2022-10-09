@@ -1,0 +1,8 @@
+all:
+  children:
+    prod-odoo:
+      hosts:
+        docker-odoo:
+    prod-pgadmin:
+      hosts:
+        docker-pgadmin-icwebapp:

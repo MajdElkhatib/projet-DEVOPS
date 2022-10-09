@@ -1,0 +1,8 @@
+- name: "installation de wordpress"
+  hosts: prod-odoo
+  roles:
+    - role: odoo_role
+- name: "Installation de pgadmin"
+  hosts: prod-pgadmin
+  roles:
+    - role: pgadmin_role
