@@ -21,22 +21,22 @@ module OS
 end
 
 Vagrant.configure("2") do |config|
-  dockers = 2 
-  (1..dockers).each do |i|
-        config.vm.define "docker#{i}" do |docker|
+  array = ["odoo", "pgadmin-icwebapp"]        
+  array.each_with_index do |val, index|
+        config.vm.define "docker-#{val}" do |docker|
              docker.vm.box = "geerlingguy/centos7"
                 if OS.linux?
-                        docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{i}", virtualbox__intnet: "08net"
+                        docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{index}", virtualbox__intnet: "08net"
                 elsif OS.windows?
-                        docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{i}"
+                        docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{index}"
                 else
                         puts 'OS not managed'
                 end
-                docker.vm.hostname = "docker#{i}"
+                docker.vm.hostname = "docker-#{val}"
                 docker.vm.provider "virtualbox" do |v|
-                        v.name = "docker#{i}"
+                        v.name = "docker-#{val}"
                         v.memory = 1024
-                        v.cpus = 2
+                        v.cpus = 1
                 end
                 docker.vm.provision :shell do |shell|
                         shell.path = "install_docker.sh"
