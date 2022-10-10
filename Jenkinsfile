@@ -156,5 +156,11 @@ pipeline {
             }
         }
     }
+
+    stage ('Deploy to prod with Ansible') {
+        steps {
+            ansiblePlaybook disableHostKeyChecking: true, installation: 'ansible', inventory: 'ansible/prods.yml', playbook: 'ansible/play.yml'
+        }
+    }
   }
 }
