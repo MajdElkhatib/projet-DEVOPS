@@ -1,10 +1,10 @@
 # Ansible
 ## Priorité haute
 	* Modifier les roles Ansible
-	* Variabiliser les noms des services et des noms de conteneurs
+	** Variabiliser les noms des services et des noms de conteneurs
 
-	### Spécifique au role pgadmin
-	* Variabiliser le TAG pour l'image ic-webapp
+	* Spécifique au role pgadmin
+	** Variabiliser le TAG pour l'image ic-webapp
 
 ## Priorité haute
 	* Modifier la partie Ansible pour gérer la partie vault
