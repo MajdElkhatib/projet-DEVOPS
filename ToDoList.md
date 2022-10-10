@@ -6,7 +6,7 @@
 	* Spécifique au role pgadmin
 	** Variabiliser le TAG pour l'image ic-webapp
 
-## Priorité haute
+## Priorité normale
 	* Modifier la partie Ansible pour gérer la partie vault
 
 	* Voir ce qu'il faut modifier dans les rôles pour faire un redéploiement
