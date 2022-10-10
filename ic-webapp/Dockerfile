@@ -12,6 +12,10 @@ COPY ic-webapp /opt/ic-webapp/
 COPY releases.txt /opt/ic-webapp/releases.txt
 WORKDIR /opt/ic-webapp
 
+# Create the entry point script
+RUN echo -e "#!/bin/bash\nexport ODOO_URL=$(cat releases.txt | grep ODOO_URL |sed -e 's/^ODOO_URL: \(.*\)$/\1/') && export PGADMIN_URL=$(cat releases.txt | grep PGADMIN_URL |sed -e 's/^PGADMIN_URL: \(.*\)$/\1/') && python3 app.py" > /opt/ic-webapp/start.sh \
+    && chmod +x /opt/ic-webapp/start.sh
+
 EXPOSE 8080
 
-CMD [ "bash -c", "ODOO_URL=$(cat releases.txt | grep ODOO_URL |awk -F\: '{print $2}'|xargs);PGADMIN_URL=$(cat releases.txt | grep PGADMIN_URL |awk -F\: '{print $2}' |xargs);python3 app.py" ]
+ENTRYPOINT [ "./start.sh" ]
