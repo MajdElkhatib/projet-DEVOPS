@@ -2,7 +2,7 @@ pipeline {
 
   environment{
     IMAGE_NAME = "ic-webapp"
-    TAG = ""
+    IMAGE_TAG = ""
     CONTAINER_NAME = "ic-webapp"
     USER_NAME = "sh0t1m3"
     DOCKERHUB_PASSWORD = "dckr_pat_mp7W160KkogvJB6nUqW3nsAmsxM"
@@ -57,7 +57,7 @@ pipeline {
             sh '''
               apt-get update
               apt-get install -y sshpass
-              ansible-playbook -i prods.yml --vault-password-file vault.key --extra-vars "ansible_sudo_pass=$SUDOPASS" play.yml
+              ansible-playbook -i prods.yml --vault-password-file vault.key --extra-vars "ansible_sudo_pass=${SUDOPASS}" play.yml
             '''
           }
         }
@@ -67,7 +67,7 @@ pipeline {
         steps{
           script{
               sh '''
-                docker build -t ${USER_NAME}/${IMAGE_NAME}:${TAG} .
+                docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .
               '''
           }
         }
@@ -77,7 +77,7 @@ pipeline {
         steps{
           script{
             sh '''
-              docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${TAG}
+              docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG}
               sleep 3
               curl http://localhost:9090 | grep -q "IC GROUP"
               docker stop ${CONTAINER_NAME} || true
@@ -96,7 +96,7 @@ pipeline {
             script {
               sh '''
                 echo $DOCKERHUB_PASSWORD_PSW | docker login -u $ID_DOCKER --password-stdin
-                docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
+                docker push ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
               '''
             }
           }
