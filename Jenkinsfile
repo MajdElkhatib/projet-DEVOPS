@@ -173,6 +173,8 @@ pipeline {
     stage ('Test full deployment') {
         steps {
             sh '''
+                sleep 10;
+
                 curl -LI http://192.168.99.21 | grep "200";
                 curl -L http://192.168.99.21 | grep "IC GROUP";
                 
