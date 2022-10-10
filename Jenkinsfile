@@ -1,4 +1,12 @@
 pipeline {
+
+  environment{
+    IMAGE_NAME = "ic-webapp"
+    TAG = ""
+    CONTAINER_NAME = "ic-webapp"
+    USER_NAME = "sh0t1m3"
+  }
+
   agent none
 
   stages {
@@ -52,7 +60,31 @@ pipeline {
           }
         }
       }
+
+      stage ('Build Image'){
+        steps{
+          script{
+              sh '''
+                  docker build -t ${USER_NAME}/${IMAGE_NAME}:${TAG} .
+              '''
+          }
+        }
+      }
+
+      stage ('Test Image'){
+        steps{
+          script{
+            sh '''
+                docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${TAG}
+                docker stop ${CONTAINER_NAME} || true
+                docker rm ${CONTAINER_NAME} || true
+                sleep 3
+                curl http://localhost:9090 | grep -q "IC GROUP"
+            '''
+          }
+        }
+      }
+
     }
 
   }
-}
