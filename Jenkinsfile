@@ -8,7 +8,7 @@ pipeline {
     DOCKERHUB_PASSWORD = "dckr_pat_mp7W160KkogvJB6nUqW3nsAmsxM"
   }
 
-  agent none
+  agent any
 
   stages {
 
@@ -106,6 +106,9 @@ pipeline {
     }
 
         stage ('Build Image') {
+            environment {
+                IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
+            }
             steps{
                 script{
                     sh '''
@@ -134,7 +137,7 @@ pipeline {
 
         stage ('Login and Push Image on docker hub') {
             agent any
-            
+
             steps {
                 script {
                 sh '''
