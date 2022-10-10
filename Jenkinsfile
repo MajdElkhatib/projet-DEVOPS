@@ -1,27 +1,38 @@
 pipeline {
     agent any
-    stages {
-        stage('Install tools'){
-            agent any
-            steps {
-                sh 'yum -y install epel-release'
-                sh 'yum -y install ShellCheck'
-                sh 'yum -y install ansible-2.9.27'
+    stages{
+        stage('Check yaml syntax') {
+            agent {
+                docker {
+                    image 'sdesbure/yamllint'
+                }
             }
-        }
-        stage('check_scripts') {
-            agent any
-            steps {
-                sh '''
-                SHELLSCRIPT_PATH="$(which shellcheck)"; if [ $SHELLSCRIPT_PATH == "" ]; then yum -y install epel-release;  yum -y install ShellCheck; fi
-                '''
-                sh 'find . -name "*.sh" -exec shellcheck {} \\; -print'
+          steps {
+            sh 'yamllint --version'
+            sh 'yamllint ${WORKSPACE} >report_yml.log || true'
             }
+          post {
+                always {
+                    archiveArtifacts 'report_yml.log'
+                }
+          }
         }
-        stage('Play Playbook'){
-            agent any
-            steps{
-                ansiblePlaybook disableHostKeyChecking: true, installation: 'ansible', inventory: 'ansible/prods.yml', playbook: 'ansible/play.yml'
+        stage('Check markdown syntax') {
+            agent {
+                docker {
+                    image 'ruby:alpine'
+                }
+            }
+            steps {
+                sh 'apk --no-cache add git'
+                sh 'gem install mdl'
+                sh 'mdl --version'
+                sh 'mdl --style all --warnings --git-recurse ${WORKSPACE} > md_lint.log || true'
+              }
+            post {
+                always {
+                    archiveArtifacts 'md_lint.log'
+                }
             }
         }
     }
