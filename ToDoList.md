@@ -39,3 +39,4 @@
 ## Priorité normale
 
 	* Regler le problème de la configuration de serveur (serveurs.json) // Pas résolu encore
+	* Tester si le changement d'un script / fichier appelé par le Dockerfile relance le build
