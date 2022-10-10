@@ -5,7 +5,6 @@ pipeline {
     IMAGE_TAG = "1.0"
     CONTAINER_NAME = "ic-webapp"
     USER_NAME = "sh0t1m3"
-    DOCKERHUB_PASSWORD = "dckr_pat_mp7W160KkogvJB6nUqW3nsAmsxM"
   }
 
   agent any
