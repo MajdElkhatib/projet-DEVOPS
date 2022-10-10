@@ -57,6 +57,7 @@ pipeline {
             apt-get update
             apt-get install -y sshpass
             ansible-playbook -i prods.yml --vault-password-file vault.key --extra-vars "ansible_sudo_pass=$SUDOPASS" play.yml
+            '''
           }
         }
       }
@@ -86,5 +87,4 @@ pipeline {
       }
 
     }
-
   }
