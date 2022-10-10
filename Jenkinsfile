@@ -65,6 +65,7 @@ pipeline {
         }
     }
     stage('Shell Check syntax') {
+        agent any
         steps {
             sh 'shellcheck */*.sh >shellcheck.log'
         }
@@ -75,6 +76,7 @@ pipeline {
         }
     }
     stage('Shellcheck checkstyle') {
+        agent any
         steps {
             catchError(buildResult: 'SUCCESS') {
                 sh """#!/bin/bash
