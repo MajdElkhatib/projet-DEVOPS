@@ -169,7 +169,7 @@ pipeline {
             withCredentials([
                 usernamePassword(credentialsId: 'ansible_user_credentials', usernameVariable: 'ansible_user', passwordVariable: 'ansible_user_pass'),
                 usernamePassword(credentialsId: 'pgadmin_credentials', usernameVariable: 'pgadmin_user', passwordVariable: 'pgadmin_pass'),
-                usernamePassword(credentialsId: 'credentials_pgsql_odoo', usernameVariable: 'pgsql_user', passwordVariable: 'pgsql_pass'),
+                usernamePassword(credentialsId: 'pgsql_credentials', usernameVariable: 'pgsql_user', passwordVariable: 'pgsql_pass'),
                 string(credentialsId: 'ansible_sudo_pass', variable: 'ansible_sudo_pass')
             ]){
             ansiblePlaybook (
