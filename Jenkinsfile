@@ -163,5 +163,15 @@ pipeline {
             ansiblePlaybook disableHostKeyChecking: true, installation: 'ansible', inventory: 'ansible/prods.yml', playbook: 'ansible/play.yml'
         }
     }
+
+    stage ('Test full deployment') {
+        steps {
+            sh '''
+                curl http://192.168.99.21 | grep "IC GROUP";
+                curl http://192.168.99.20:8081 | grep "Odoo";
+                curl http://192.168.99.21:8082 | grep "pgAdmin 4";
+            '''
+        }
+    }
   }
 }
