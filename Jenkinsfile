@@ -28,6 +28,7 @@ pipeline {
             }
         }
     }
+
     stage('Lint markdown files') {
         agent {
             docker {
@@ -46,6 +47,7 @@ pipeline {
             }
         }
     }
+
     stage("Lint ansible playbook files") {
         agent {
             docker {
@@ -64,6 +66,7 @@ pipeline {
             }
         }
     }
+
     stage('Lint shell script files') {
         agent any
         steps {
@@ -76,6 +79,7 @@ pipeline {
             }
         }
     }
+
     stage('Lint shell script files - checkstyle') {
         agent any
         steps {
@@ -92,6 +96,7 @@ pipeline {
             }
         }
     }
+
     stage ("Lint docker files") {
         agent {
             docker {
