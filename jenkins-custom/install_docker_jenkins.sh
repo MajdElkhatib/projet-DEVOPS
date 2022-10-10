@@ -28,3 +28,23 @@ git pull
 docker build -t jenkins:jcasc .
 
 docker run --name jenkins --rm -p 8080:8080 jenkins:jcasc
+
+# install-plugin.sh n'existe plus, il faut utiliser jenkins-plugin-cli
+
+docker run --name jenkins -dit -p 8080:8080 jenkins:jcasc
+
+docker exec -it jenkins /bin/bash
+
+# Partie 3
+# https://www.digitalocean.com/community/tutorials/how-to-automate-jenkins-setup-with-docker-and-jenkins-configuration-as-code#step-3-specifying-the-jenkins-url
+git pull
+docker build -t jenkins:jcasc .
+docker run --name jenkins --rm -p 8080:8080 jenkins:jcasc
+
+# Nettoyage
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+
+docker rmi jenkins:jcasc
+
+docker images
