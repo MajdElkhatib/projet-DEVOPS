@@ -173,14 +173,14 @@ pipeline {
     stage ('Test full deployment') {
         steps {
             sh '''
-                curl -IL http://192.168.99.21 | grep "200";
-                curl http://192.168.99.21 | grep "IC GROUP";
+                curl -LI http://192.168.99.21 | grep "200";
+                curl -L http://192.168.99.21 | grep "IC GROUP";
                 
-                curl -IL http://192.168.99.20:8081 | grep "200";
-                curl http://192.168.99.20:8081 | grep "Database Name";
+                curl -LI http://192.168.99.20:8081 | grep "200";
+                curl -L http://192.168.99.20:8081 | grep "Database Name";
 
-                curl -IL http://192.168.99.21:8082 | grep "200";
-                curl http://192.168.99.21:8082 | grep "pgAdmin 4";
+                curl -LI http://192.168.99.21:8082 | grep "200";
+                curl -L http://192.168.99.21:8082 | grep "pgAdmin 4";
             '''
         }
     }
