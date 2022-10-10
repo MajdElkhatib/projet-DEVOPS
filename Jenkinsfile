@@ -12,6 +12,7 @@ pipeline {
   stages {
 
     stage('Lint yaml files') {
+        when { changeset "**/*.yml"}
         agent {
             docker {
                 image 'sdesbure/yamllint'
@@ -29,6 +30,7 @@ pipeline {
     }
 
     stage('Lint markdown files') {
+        when { changeset "**/*.md"}
         agent {
             docker {
                 image 'ruby:alpine'
@@ -48,6 +50,7 @@ pipeline {
     }
 
     stage("Lint ansible playbook files") {
+        when { changeset "ansible/**/*.yml"}
         agent {
             docker {
                 image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
@@ -67,6 +70,7 @@ pipeline {
     }
 
     stage('Lint shell script files') {
+        when { changeset "**/*.sh"}
         agent any
         steps {
             sh 'yum -y clean all && yum -y install epel-release && yum -y install ShellCheck'
@@ -80,6 +84,7 @@ pipeline {
     }
 
     stage('Lint shell script files - checkstyle') {
+        when { changeset "**/*.sh"}
         agent any
         steps {
             catchError(buildResult: 'SUCCESS') {
@@ -97,6 +102,7 @@ pipeline {
     }
 
     stage ("Lint docker files") {
+        when { changeset "**/Dockerfile"}
         agent {
             docker {
                 image 'hadolint/hadolint:latest-debian'
