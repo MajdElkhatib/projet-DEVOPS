@@ -159,6 +159,7 @@ pipeline {
 
     stage ('Deploy to prod with Ansible') {
         steps {
+            sh 'yum -y clean all && yum -y install epel-release && yum -y install ansible-2.9.27'
             ansiblePlaybook disableHostKeyChecking: true, installation: 'ansible', inventory: 'ansible/prods.yml', playbook: 'ansible/play.yml'
         }
     }
