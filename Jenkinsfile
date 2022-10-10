@@ -165,7 +165,7 @@ pipeline {
 
     stage ('Deploy to prod with Ansible') {
         steps {
-            sh 'yum -y clean all && yum -y install epel-release && yum -y install ansible-2.9.27'
+            sh 'yum -y clean all && yum -y install epel-release && yum -y install ansible-2.9.27 || true'
             withCredentials([
                 usernamePassword(credentialsId: 'ansible_user_credentials', usernameVariable: 'ansible_user', passwordVariable: 'ansible_user_pass'),
                 usernamePassword(credentialsId: 'pgadmin_credentials', usernameVariable: 'pgadmin_user', passwordVariable: 'pgadmin_pass'),
