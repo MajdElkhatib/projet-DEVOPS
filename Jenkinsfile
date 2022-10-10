@@ -67,6 +67,7 @@ pipeline {
     stage('Shell Check syntax') {
         agent any
         steps {
+            sh 'yum -y install ShellCheck'
             sh 'shellcheck */*.sh >shellcheck.log'
         }
         post {
