@@ -166,10 +166,29 @@ pipeline {
     stage ('Deploy to prod with Ansible') {
         steps {
             sh 'yum -y clean all && yum -y install epel-release && yum -y install ansible-2.9.27'
-            ansiblePlaybook disableHostKeyChecking: true, installation: 'ansible', inventory: 'ansible/prods.yml', playbook: 'ansible/play.yml', extras: '--extra-vars "NETWORK_NAME=network IMAGE_TAG=${IMAGE_TAG}"'
+            withCredentials([
+                usernamePassword(credentialsId: 'ansible_user_credentials', usernameVariable: 'ansible_user', passwordVariable: 'ansible_user_pass'),
+                usernamePassword(credentialsId: 'pgadmin_credentials', usernameVariable: 'pgadmin_user', passwordVariable: 'pgadmin_pass'),
+                usernamePassword(credentialsId: 'credentials_pgsql_odoo', usernameVariable: 'pgsql_user', passwordVariable: 'pgsql_pass'),
+                string(credentialsId: 'ansible_sudo_pass', variable: 'ansible_sudo_pass')
+            ]){
+            ansiblePlaybook (
+                disableHostKeyChecking: true,
+                installation: 'ansible',
+                inventory: 'ansible/prods.yml',
+                playbook: 'ansible/play.yml',
+                extras: '--extra-vars "NETWORK_NAME=network \
+                        IMAGE_TAG=${IMAGE_TAG} \
+                        ansible_user=${ansible_user} \
+                        ansible_ssh_pass=${ansible_user_pass} \
+                        ansible_sudo_pass=${ansible_sudo_pass} \
+                        PGADMIN_EMAIL=${pgadmin_user} \
+                        PGADMIN_PASS=${pgadmin_pass} \
+                        DB_USER=${pgsql_user} \
+                        DB_PASS=${pgsql_pass}"')
+            }
         }
     }
-
     stage ('Test full deployment') {
         steps {
             sh '''
@@ -177,7 +196,7 @@ pipeline {
 
                 curl -LI http://192.168.99.21 | grep "200";
                 curl -L http://192.168.99.21 | grep "IC GROUP";
-                
+
                 curl -LI http://192.168.99.20:8081 | grep "200";
                 curl -L http://192.168.99.20:8081 | grep "Database Name";
 
