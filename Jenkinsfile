@@ -1,39 +1,58 @@
 pipeline {
-    agent any
-    stages {
-        stage('Check yaml syntax') {
-            agent {
-                docker {
-                    image 'sdesbure/yamllint'
-                }
-            }
-            steps {
-                sh 'yamllint --version'
-                sh 'yamllint ${WORKSPACE} > report_yml.log || true'
-            }
-            post {
-                always {
-                    archiveArtifacts 'report_yml.log'
-                }
-            }
-        }
-        stage('Check markdown syntax') {
-            agent {
-                docker {
-                    image 'ruby:alpine'
-                }
-            }
-            steps {
-                sh 'apk --no-cache add git'
-                sh 'gem install mdl'
-                sh 'mdl --version'
-                sh 'mdl --style all --warnings --git-recurse ${WORKSPACE} > md_lint.log || true'
-            }
-            post {
-                always {
-                    archiveArtifacts 'md_lint.log'
-                }
-            }
-        }
+  agent none
+
+  stages {
+    stage('Check yaml syntax') {
+      agent { docker { image 'sdesbure/yamllint } }
+      steps {
+        sh 'yamllint --version'
+        sh 'yamllint \${WORKSPACE}'
+      }
     }
+    stage('Check markdown syntax') {
+      agent { docker { image 'ruby:alpine'} }
+      steps {
+        sh 'apk --no-cache add git'
+        sh 'gem install mdl'
+        sh 'mdl --version'
+        sh 'mdl --style all --warnings --git-recurse \${WORKSPACE}'
+
+      }
+    }
+
+    stage('Prepare ansible environment') {
+      agent any
+      environment {
+        VAULTKEY = credentials('valtkey')
+      }
+      steps {
+        sh 'echo \$VAULTKEY > vault.key'
+      }
+    }
+    stage('test and deploy the application'){
+      environment {
+        SUDOPASS = credentials('sudopass')
+      }
+      agent { docker { image 'registry.gitlab.com/robconnolly/docker-ansible:latest' } }
+      stages {
+        stage("verify ansible playbook syntax") {
+          steps {
+            sh 'ansible-lint play.yml'
+          }
+        }
+        stage("Deploy app in production") {
+          when {
+            expression { GIT_BRANCH == 'origin/master' }
+          }
+          steps {
+            sh '''
+            apt-get update
+            apt-get install -y sshpass
+            ansible-playbook -i prods.yml --vault-password-file vault.key --extra-vars "ansible_sudo_pass=$SUDOPASS" play.yml
+          }
+        }
+      }
+    }
+
+  }
 }
