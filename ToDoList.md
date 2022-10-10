@@ -19,9 +19,10 @@
 
 # Jenkins
 ## Priorité Haute
-	* Build une nouvelle image lors du changement du fichier release.txt
-	* Tester cette nouvelle image
-	* Push de l'image sur le registry dockerhub
+	* Build une nouvelle image lors du changement du fichier release.txt // Quasiment fait
+	* Tester cette nouvelle image // Quasiment fait
+	* Push de l'image sur le registry dockerhub // Quasiment fait
+
 	* Lancer le playbook avec un redéploiment du docker-compose contenant le conteneur ic-webapp  avec des extras vars
 
 # Jenkins
