@@ -113,6 +113,7 @@ pipeline {
     }
 
     stage ('Build docker image') {
+        when { changeset "ic-webapp/releases.txt"}
         environment {
             IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
         }
@@ -127,6 +128,7 @@ pipeline {
     }
 
     stage ('Test docker image') {
+        when { changeset "ic-webapp/releases.txt"}
         steps{
             script{
             sh '''
@@ -143,6 +145,7 @@ pipeline {
     }
 
     stage ('Login and push docker image') {
+        when { changeset "ic-webapp/releases.txt"}
         agent any
         environment {
             DOCKERHUB_PASSWORD  = credentials('dockerhub')
