@@ -2,7 +2,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "ic-webapp"
-    IMAGE_TAG = "1.0"
+    IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
     CONTAINER_NAME = "ic-webapp"
     USER_NAME = "sh0t1m3"
   }
@@ -114,9 +114,6 @@ pipeline {
 
     stage ('Build docker image') {
         when { changeset "ic-webapp/releases.txt"}
-        environment {
-            IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
-        }
         steps{
             script{
                 sh '''
