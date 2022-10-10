@@ -13,23 +13,97 @@ pipeline {
   stages {
 
     stage('Check yaml syntax') {
-      agent { docker { image 'sdesbure/yamllint' } }
-      steps {
-        sh 'yamllint --version'
-        sh 'yamllint ${WORKSPACE}'
-      }
+        agent {
+            docker {
+                image 'sdesbure/yamllint'
+            }
+        }
+        steps {
+            sh 'yamllint --version'
+            sh 'yamllint ${WORKSPACE} >report_yml.log || true'
+        }
+        post {
+            always {
+                archiveArtifacts 'report_yml.log'
+            }
+        }
     }
-
     stage('Check markdown syntax') {
-      agent { docker { image 'ruby:alpine'} }
-      steps {
-        sh 'apk --no-cache add git'
-        sh 'gem install mdl'
-        sh 'mdl --version'
-        sh 'mdl --style all --warnings --git-recurse ${WORKSPACE}'
-      }
+        agent {
+            docker {
+                image 'ruby:alpine'
+            }
+        }
+        steps {
+            sh 'apk --no-cache add git'
+            sh 'gem install mdl'
+            sh 'mdl --version'
+            sh 'mdl --style all --warnings --git-recurse ${WORKSPACE} > md_lint.log || true'
+        }
+        post {
+            always {
+                archiveArtifacts 'md_lint.log'
+            }
+        }
     }
-
+    stage("verify ansible playbook syntax") {
+        agent {
+            docker {
+                image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+            }
+        }
+        steps {
+        sh '''
+            cd "${WORKSPACE}/ansible/"
+            ansible-lint play.yml > "${WORKSPACE}/ansible-lint.log" || true
+        '''
+        }
+        post {
+            always {
+                archiveArtifacts "ansible-lint.log"
+            }
+        }
+    }
+    stage('Shell Check syntax') {
+        steps {
+            sh 'shellcheck */*.sh >shellcheck.log'
+        }
+        post {
+            always {
+                archiveArtifacts 'shellcheck.log'
+            }
+        }
+    }
+    stage('Shellcheck checkstyle') {
+        steps {
+            catchError(buildResult: 'SUCCESS') {
+                sh """#!/bin/bash
+                    # The null command `:` only returns exit code 0 to ensure following task executions.
+                    shellcheck -f checkstyle */*.sh > shellcheck.xml || :
+                """
+            }
+        }
+        post {
+            always {
+                archiveArtifacts 'shellcheck.xml'
+            }
+        }
+    }
+    stage ("lint dockerfile") {
+        agent {
+            docker {
+                image 'hadolint/hadolint:latest-debian'
+            }
+        }
+        steps {
+            sh 'hadolint $PWD/**/Dockerfile | tee -a hadolint_lint.log'
+        }
+        post {
+            always {
+                archiveArtifacts 'hadolint_lint.log'
+            }
+        }
+    }
     stage ('Build Image') {
       steps{
         script{
