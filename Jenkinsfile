@@ -12,7 +12,7 @@ pipeline {
 
   stages {
 
-    stage('Check yaml syntax') {
+    stage('Lint yaml files') {
         agent {
             docker {
                 image 'sdesbure/yamllint'
@@ -28,7 +28,7 @@ pipeline {
             }
         }
     }
-    stage('Check markdown syntax') {
+    stage('Lint markdown files') {
         agent {
             docker {
                 image 'ruby:alpine'
@@ -46,7 +46,7 @@ pipeline {
             }
         }
     }
-    stage("verify ansible playbook syntax") {
+    stage("Lint ansible playbook files") {
         agent {
             docker {
                 image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
@@ -64,7 +64,7 @@ pipeline {
             }
         }
     }
-    stage('Shell Check syntax') {
+    stage('Lint shell script files') {
         agent any
         steps {
             sh 'yum -y clean all && yum -y install epel-release && yum -y install ShellCheck'
@@ -76,7 +76,7 @@ pipeline {
             }
         }
     }
-    stage('Shellcheck checkstyle') {
+    stage('Lint shell script files - checkstyle') {
         agent any
         steps {
             catchError(buildResult: 'SUCCESS') {
@@ -92,7 +92,7 @@ pipeline {
             }
         }
     }
-    stage ("lint dockerfile") {
+    stage ("Lint docker files") {
         agent {
             docker {
                 image 'hadolint/hadolint:latest-debian'
@@ -108,7 +108,7 @@ pipeline {
         }
     }
 
-        stage ('Build Image') {
+        stage ('Build docker image') {
             environment {
                 IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
             }
@@ -122,7 +122,7 @@ pipeline {
             }
         }
 
-        stage ('Test Image') {
+        stage ('Test docker image') {
             steps{
                 script{
                 sh '''
@@ -138,7 +138,7 @@ pipeline {
             }
         }
 
-        stage ('Login and Push Image on docker hub') {
+        stage ('Login and push docker image') {
             agent any
 
             steps {
