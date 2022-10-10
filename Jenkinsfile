@@ -5,13 +5,14 @@ pipeline {
     TAG = ""
     CONTAINER_NAME = "ic-webapp"
     USER_NAME = "sh0t1m3"
+    DOCKERHUB_PASSWORD = ""
   }
 
   agent none
 
   stages {
     stage('Check yaml syntax') {
-      agent { docker { image 'sdesbure/yamllint } }
+      agent { docker { image 'sdesbure/yamllint' } }
       steps {
         sh 'yamllint --version'
         sh 'yamllint \${WORKSPACE}'
@@ -54,9 +55,10 @@ pipeline {
           }
           steps {
             sh '''
-            apt-get update
-            apt-get install -y sshpass
-            ansible-playbook -i prods.yml --vault-password-file vault.key --extra-vars "ansible_sudo_pass=$SUDOPASS" play.yml
+              apt-get update
+              apt-get install -y sshpass
+              ansible-playbook -i prods.yml --vault-password-file vault.key --extra-vars "ansible_sudo_pass=$SUDOPASS" play.yml
+            '''
           }
         }
       }
@@ -65,7 +67,7 @@ pipeline {
         steps{
           script{
               sh '''
-                  docker build -t ${USER_NAME}/${IMAGE_NAME}:${TAG} .
+                docker build -t ${USER_NAME}/${IMAGE_NAME}:${TAG} .
               '''
           }
         }
@@ -75,14 +77,29 @@ pipeline {
         steps{
           script{
             sh '''
-                docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${TAG}
-                sleep 3
-                curl http://localhost:9090 | grep -q "IC GROUP"
-                docker stop ${CONTAINER_NAME} || true
-                docker rm ${CONTAINER_NAME} || true
+              docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${TAG}
+              sleep 3
+              curl http://localhost:9090 | grep -q "IC GROUP"
+              docker stop ${CONTAINER_NAME} || true
+              docker rm ${CONTAINER_NAME} || true
             '''
           }
         }
+      }
+
+      stage ('Login and Push Image on docker hub') {
+        agent any
+        environment {
+          DOCKERHUB_PASSWORD  = credentials('dockerhub')
+        }
+          steps {
+            script {
+              sh '''
+                echo $DOCKERHUB_PASSWORD_PSW | docker login -u $ID_DOCKER --password-stdin
+                docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
+              '''
+            }
+          }
       }
 
     }
