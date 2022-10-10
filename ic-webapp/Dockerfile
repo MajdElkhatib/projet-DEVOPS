@@ -14,4 +14,4 @@ WORKDIR /opt/ic-webapp
 
 EXPOSE 8080
 
-CMD [ "bash -c", "ODOO_URL=$(cat releases.txt | grep ODOO_URL |awk -F\: '{print $2}');PGADMIN_URL=$(cat releases.txt | grep PGADMIN_URL |awk -F\: '{print $2}');python3 app.py" ]
+CMD [ "bash -c", "ODOO_URL=$(cat releases.txt | grep ODOO_URL |awk -F\: '{print $2}'|xargs);PGADMIN_URL=$(cat releases.txt | grep PGADMIN_URL |awk -F\: '{print $2}' |xargs);python3 app.py" ]
