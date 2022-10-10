@@ -104,46 +104,45 @@ pipeline {
             }
         }
     }
-    stage ('Build Image') {
-      steps{
-        script{
-            sh '''
-              cd 'docker'
-              docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .
-            '''
-        }
-      }
-    }
 
-    stage ('Test Image') {
-      steps{
-        script{
-          sh '''
-            docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG}
-            sleep 3
-            curl http://localhost:9090 | grep -q "IC GROUP"
-            docker stop ${CONTAINER_NAME} || true
-            docker rm ${CONTAINER_NAME} || true
-          '''
+        stage ('Build Image') {
+            steps{
+                script{
+                    sh '''
+                    cd 'ic-webapp';
+                    docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
+                    '''
+                }
+            }
         }
-      }
-    }
 
-    stage ('Login and Push Image on docker hub') {
-      agent any
-      environment {
-        DOCKERHUB_PASSWORD  = credentials('dockerhub')
-      }
-      steps {
-        script {
-          sh '''
-            echo $DOCKERHUB_PASSWORD_PSW | docker login -u $ID_DOCKER --password-stdin
-            docker push ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
-          '''
+        stage ('Test Image') {
+            steps{
+                script{
+                sh '''
+                    docker stop ${CONTAINER_NAME} || true;
+                    docker rm ${CONTAINER_NAME} || true;
+                    docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+                    sleep 3;
+                    curl http://192.168.99.12:9090 | grep -q "IC GROUP";
+                    docker stop ${CONTAINER_NAME};
+                    docker rm ${CONTAINER_NAME};
+                '''
+                }
+            }
         }
-      }
-    }
 
+        stage ('Login and Push Image on docker hub') {
+            agent any
+            
+            steps {
+                script {
+                sh '''
+                    echo "${DOCKERHUB_PASSWORD}" | docker login -u ${USER_NAME} --password-stdin;
+                    docker push ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+                '''
+                }
+            }
+        }
   }
-
 }
