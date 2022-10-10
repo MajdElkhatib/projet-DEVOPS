@@ -113,47 +113,47 @@ pipeline {
         }
     }
 
-        stage ('Build docker image') {
-            environment {
-                IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
-            }
-            steps{
-                script{
-                    sh '''
-                    cd 'ic-webapp';
-                    docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
-                    '''
-                }
-            }
+    stage ('Build docker image') {
+        environment {
+            IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
         }
-
-        stage ('Test docker image') {
-            steps{
-                script{
+        steps{
+            script{
                 sh '''
-                    docker stop ${CONTAINER_NAME} || true;
-                    docker rm ${CONTAINER_NAME} || true;
-                    docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
-                    sleep 3;
-                    curl http://192.168.99.12:9090 | grep -q "IC GROUP";
-                    docker stop ${CONTAINER_NAME};
-                    docker rm ${CONTAINER_NAME};
+                cd 'ic-webapp';
+                docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
                 '''
-                }
             }
         }
+    }
 
-        stage ('Login and push docker image') {
-            agent any
-
-            steps {
-                script {
-                sh '''
-                    echo "${DOCKERHUB_PASSWORD}" | docker login -u ${USER_NAME} --password-stdin;
-                    docker push ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
-                '''
-                }
+    stage ('Test docker image') {
+        steps{
+            script{
+            sh '''
+                docker stop ${CONTAINER_NAME} || true;
+                docker rm ${CONTAINER_NAME} || true;
+                docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+                sleep 3;
+                curl http://192.168.99.12:9090 | grep -q "IC GROUP";
+                docker stop ${CONTAINER_NAME};
+                docker rm ${CONTAINER_NAME};
+            '''
             }
         }
+    }
+
+    stage ('Login and push docker image') {
+        agent any
+
+        steps {
+            script {
+            sh '''
+                echo "${DOCKERHUB_PASSWORD}" | docker login -u ${USER_NAME} --password-stdin;
+                docker push ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+            '''
+            }
+        }
+    }
   }
 }
