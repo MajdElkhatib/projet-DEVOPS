@@ -41,6 +41,12 @@ git pull
 docker build -t jenkins:jcasc .
 docker run --name jenkins --rm -p 8080:8080 jenkins:jcasc
 
+# Partie 4
+# https://www.digitalocean.com/community/tutorials/how-to-automate-jenkins-setup-with-docker-and-jenkins-configuration-as-code#step-4-creating-a-user
+git pull
+docker build -t jenkins:jcasc .
+docker run --name jenkins --rm -p 8080:8080 --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc
+
 # Nettoyage
 docker stop $(docker ps -aq)
 docker rm $(docker ps -aq)
