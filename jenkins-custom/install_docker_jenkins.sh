@@ -24,7 +24,7 @@ pwd
 ls -la
 
 docker pull jenkins/jenkins:latest
-echo "Fin du docker build"
+echo "Fin du docker pull"
 sleep 5
 
 docker build -t jenkins:jcasc .
@@ -36,6 +36,9 @@ echo "Fin du docker run"
 sleep 5
 
 # Import des jobs
+JENKINS_USERNAME="admin";
+JENKINS_PASSWORD="password";
+
 bash jenkins-import-jobs.sh
 echo "Fin de l'import des jobs"
 sleep 5
