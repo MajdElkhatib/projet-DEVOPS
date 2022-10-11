@@ -33,4 +33,3 @@ for JOB_NAME in $JOBS
 do
     java -jar jenkins-cli.jar -s "${URL}" -auth "${JENKINS_USERNAME}":"${JENKINS_PASSWORD}" get-job "${JOB_NAME}" > "jobs/${JOB_NAME}.xml";
 done
-
