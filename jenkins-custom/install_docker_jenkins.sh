@@ -35,6 +35,9 @@ docker run --name jenkins --privileged -dit -v /var/run/docker.sock:/var/run/doc
 echo "Fin du docker run"
 sleep 5
 
+# Installation de docker par exec
+# docker exec -ti --privileged -u 0 jenkins /bin/bash -c "curl -fsSL https://get.docker.com/ -o get-docker.sh && sh get-docker.sh && chmod 777 /var/run/docker.sock"
+
 # Import des jobs
 export JENKINS_USERNAME="admin";
 export JENKINS_PASSWORD="password";
