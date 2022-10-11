@@ -18,6 +18,12 @@ jenkins:
         - "Overall/Administer:admin"
         - "Overall/Read:authenticated"
 
+security:
+  queueItemAuthenticator:
+    authenticators:
+    - global:
+        strategy: triggeringUsersAuthorizationStrategy
+
 unclassified:
   location:
     url: http://192.168.99.13:8080/

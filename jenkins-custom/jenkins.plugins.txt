@@ -1,4 +1,5 @@
 antisamy-markup-formatter:latest
+authorize-project:latest
 build-timeout:latest
 cloudbees-folder:latest
 configuration-as-code:latest
