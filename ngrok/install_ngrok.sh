@@ -13,6 +13,8 @@ if [[ ! -f "/usr/local/bin/ngrok" ]]; then
     sudo tar xvzf "${FILE_NAME}" -C /usr/local/bin;
 fi
 
+sleep 3
+
 # Enregistrement
 ngrok config add-authtoken $(cat token.txt);
 
