@@ -1,3 +1,4 @@
+ansible:latest
 antisamy-markup-formatter:latest
 authorize-project:latest
 build-timeout:latest
