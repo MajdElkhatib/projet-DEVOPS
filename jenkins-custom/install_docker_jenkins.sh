@@ -34,7 +34,7 @@ sleep 5
 
 docker stop jenkins
 docker rm jenkins
-docker run --name jenkins -dit -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc
+docker run --name jenkins --privileged -dit -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc
 echo "Fin du docker run"
 sleep 5
 
