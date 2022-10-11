@@ -4,7 +4,10 @@
 
 PROJECT_NAME="ajc-projet-final-2";
 
-git clone "https://github.com/Romain-Revel/${PROJECT_NAME}";
+if [[ -d "${PROJECT_NAME}" ]]; then
+    git clone "https://github.com/Romain-Revel/${PROJECT_NAME}";
+fi
+
 pwd
 cd "${PROJECT_NAME}";
 pwd
@@ -17,6 +20,10 @@ pwd
 cd "jenkins-custom"
 pwd
 ls -la
+
+docker pull jenkins/jenkins:latest
+echo "Fin du docker build"
+sleep 5
 
 docker build -t jenkins:jcasc .
 echo "Fin du docker build"
