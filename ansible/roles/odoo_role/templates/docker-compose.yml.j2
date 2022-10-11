@@ -4,7 +4,7 @@ services:
     {{ SERVICE_POSTGRES }}:
         environment:
             - POSTGRES_USER={{ DB_USER }}
-            - POSTGRES_PASSWORD={{ DB_PASS }}
+            - POSTGRES_PASSWORD="{{ DB_PASS }}"
             - POSTGRES_DB={{ DB_NAME }}
         networks:
             - {{ NETWORK_NAME }}
@@ -26,7 +26,7 @@ services:
             - 'odoo-web-data:/var/lib/odoo'
         environment:
             - USER={{ DB_USER }}
-            - PASSWORD={{ DB_PASS }}
+            - PASSWORD="{{ DB_PASS }}"
             - HOST={{ DB_NAME }}
         image: odoo:13
 
