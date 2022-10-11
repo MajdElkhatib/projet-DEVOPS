@@ -1,0 +1,228 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1189.va_d37a_e9e4eda_">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2114.v2654ca_721309"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2114.v2654ca_721309">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2729.vea_17b_79ed57a_">
+    <script>pipeline {
+
+  environment {
+    IMAGE_NAME = &quot;ic-webapp&quot;
+    IMAGE_TAG = &quot;${sh(returnStdout: true, script: &apos;cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs&apos;)}&quot;
+    CONTAINER_NAME = &quot;ic-webapp&quot;
+    USER_NAME = &quot;sh0t1m3&quot;
+  }
+
+  agent any
+
+  stages {
+
+        stage(&apos;SCM clone&apos;){
+            agent any
+            steps{
+                git branch: &apos;dev&apos;, url: &apos;https://github.com/Romain-Revel/ajc-projet-final-2.git&apos;
+            }
+        }
+        stage(&apos;Lint yaml files&apos;) {
+        agent {
+            docker {
+                image &apos;sdesbure/yamllint&apos;
+            }
+        }
+        steps {
+            sh &apos;yamllint --version&apos;
+            sh &apos;yamllint ${WORKSPACE} &gt;report_yml.log || true&apos;
+        }
+        post {
+            always {
+                archiveArtifacts &apos;report_yml.log&apos;
+            }
+        }
+    }
+
+    stage(&apos;Lint markdown files&apos;) {
+        agent {
+            docker {
+                image &apos;ruby:alpine&apos;
+            }
+        }
+        steps {
+            sh &apos;apk --no-cache add git&apos;
+            sh &apos;gem install mdl&apos;
+            sh &apos;mdl --version&apos;
+            sh &apos;mdl --style all --warnings --git-recurse ${WORKSPACE} &gt; md_lint.log || true&apos;
+        }
+        post {
+            always {
+                archiveArtifacts &apos;md_lint.log&apos;
+            }
+        }
+    }
+
+    stage(&quot;Lint ansible playbook files&quot;) {
+        agent {
+            docker {
+                image &apos;registry.gitlab.com/robconnolly/docker-ansible:latest&apos;
+            }
+        }
+        steps {
+        sh &apos;&apos;&apos;
+            cd &quot;${WORKSPACE}/ansible/&quot;
+            ansible-lint play.yml &gt; &quot;${WORKSPACE}/ansible-lint.log&quot; || true
+        &apos;&apos;&apos;
+        }
+        post {
+            always {
+                archiveArtifacts &quot;ansible-lint.log&quot;
+            }
+        }
+    }
+
+    stage(&apos;Lint shell script files&apos;) {
+        agent any
+        steps {
+            sh &apos;yum -y clean all &amp;&amp; yum -y install epel-release &amp;&amp; yum -y install ShellCheck&apos;
+            sh &apos;shellcheck */*.sh &gt;shellcheck.log&apos;
+        }
+        post {
+            always {
+                archiveArtifacts &apos;shellcheck.log&apos;
+            }
+        }
+    }
+
+    stage(&apos;Lint shell script files - checkstyle&apos;) {
+        agent any
+        steps {
+            catchError(buildResult: &apos;SUCCESS&apos;) {
+                sh &quot;&quot;&quot;#!/bin/bash
+                    # The null command `:` only returns exit code 0 to ensure following task executions.
+                    shellcheck -f checkstyle */*.sh &gt; shellcheck.xml || :
+                &quot;&quot;&quot;
+            }
+        }
+        post {
+            always {
+                archiveArtifacts &apos;shellcheck.xml&apos;
+            }
+        }
+    }
+
+    stage (&quot;Lint docker files&quot;) {
+        agent {
+            docker {
+                image &apos;hadolint/hadolint:latest-debian&apos;
+            }
+        }
+        steps {
+            sh &apos;hadolint $PWD/**/Dockerfile | tee -a hadolint_lint.log&apos;
+        }
+        post {
+            always {
+                archiveArtifacts &apos;hadolint_lint.log&apos;
+            }
+        }
+    }
+
+    stage (&apos;Build docker image&apos;) {
+        steps{
+            script{
+                sh &apos;&apos;&apos;
+                cd &apos;ic-webapp&apos;;
+                docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
+                &apos;&apos;&apos;
+            }
+        }
+    }
+
+    stage (&apos;Test docker image&apos;) {
+        steps{
+            script{
+            sh &apos;&apos;&apos;
+                docker stop ${CONTAINER_NAME} || true;
+                docker rm ${CONTAINER_NAME} || true;
+                docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+                sleep 3;
+                curl http://192.168.99.12:9090 | grep -q &quot;IC GROUP&quot;;
+                docker stop ${CONTAINER_NAME};
+                docker rm ${CONTAINER_NAME};
+            &apos;&apos;&apos;
+            }
+        }
+    }
+
+    stage (&apos;Login and push docker image&apos;) {
+        when { changeset &quot;ic-webapp/releases.txt&quot;}
+        agent any
+        environment {
+            DOCKERHUB_PASSWORD  = credentials(&apos;dockerhub&apos;)
+        }
+        steps {
+            script {
+            sh &apos;&apos;&apos;
+                echo &quot;${DOCKERHUB_PASSWORD}&quot; | docker login -u ${USER_NAME} --password-stdin;
+                docker push ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+            &apos;&apos;&apos;
+            }
+        }
+    }
+
+    stage (&apos;Deploy to prod with Ansible&apos;) {
+        steps {
+            sh &apos;yum -y clean all &amp;&amp; yum -y install epel-release &amp;&amp; yum -y install ansible-2.9.27 || true&apos;
+            withCredentials([
+                usernamePassword(credentialsId: &apos;ansible_user_credentials&apos;, usernameVariable: &apos;ansible_user&apos;, passwordVariable: &apos;ansible_user_pass&apos;),
+                usernamePassword(credentialsId: &apos;pgadmin_credentials&apos;, usernameVariable: &apos;pgadmin_user&apos;, passwordVariable: &apos;pgadmin_pass&apos;),
+                usernamePassword(credentialsId: &apos;pgsql_credentials&apos;, usernameVariable: &apos;pgsql_user&apos;, passwordVariable: &apos;pgsql_pass&apos;),
+                string(credentialsId: &apos;ansible_sudo_pass&apos;, variable: &apos;ansible_sudo_pass&apos;)
+            ]){
+            ansiblePlaybook (
+                disableHostKeyChecking: true,
+                installation: &apos;ansible&apos;,
+                inventory: &apos;ansible/prods.yml&apos;,
+                playbook: &apos;ansible/play.yml&apos;,
+                extras: &apos;--extra-vars &quot;NETWORK_NAME=network \
+                        IMAGE_TAG=${IMAGE_TAG} \
+                        ansible_user=${ansible_user} \
+                        ansible_ssh_pass=${ansible_user_pass} \
+                        ansible_sudo_pass=${ansible_sudo_pass} \
+                        PGADMIN_EMAIL=${pgadmin_user} \
+                        PGADMIN_PASS=${pgadmin_pass} \
+                        DB_USER=${pgsql_user} \
+                        DB_PASS=${pgsql_pass}&quot;&apos;)
+            }
+        }
+    }
+    stage (&apos;Test full deployment&apos;) {
+        steps {
+            sh &apos;&apos;&apos;
+                sleep 10;
+
+                curl -LI http://192.168.99.21 | grep &quot;200&quot;;
+                curl -L http://192.168.99.21 | grep &quot;IC GROUP&quot;;
+
+                curl -LI http://192.168.99.20:8081 | grep &quot;200&quot;;
+                curl -L http://192.168.99.20:8081 | grep &quot;Odoo&quot;;
+
+                curl -LI http://192.168.99.21:8082 | grep &quot;200&quot;;
+                curl -L http://192.168.99.21:8082 | grep &quot;pgAdmin 4&quot;;
+            &apos;&apos;&apos;
+        }
+    }
+  }
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
