@@ -40,12 +40,12 @@ Vagrant.configure("2") do |config|
       v.cpus = 2
     end
     jenkins.vm.provision :shell do |shell|
-      run: "once"
+      run = "once"
       shell.path = "install_docker.sh"
       shell.env = { 'ENABLE_ZSH' => ENV['ENABLE_ZSH'] }
     end
     jenkins.vm.provision :shell do |shell|
-      run: "always"
+      run = "always"
       shell.privileged = false
       shell.path = "install_docker_jenkins.sh"
     end
