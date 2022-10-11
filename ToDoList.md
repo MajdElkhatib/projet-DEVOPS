@@ -42,3 +42,7 @@
 	* Tester si le changement d'un script / fichier appelé par le Dockerfile relance le build
 	* Auto merge sur la branche main si pipeline réussi
 	* Ajouter MAINTAINER dans les fichiers Docker
+
+# Vagrant
+
+	* Refactoriser Vagrantfile pour éviter la dupplication de code et mettre toute la configuration en début de fichier
