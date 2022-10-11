@@ -9,7 +9,7 @@ credentials:
           secret: "{AQAAABAAAAAw632BD8V0u3jO0s90yYiMwllBr6OzIrtmGMqWAEvtIDcqXa2XCyH2WBJPrmSdH9fPnShuX2v4AMjjUbicqwo2Ag==}"
       - usernamePassword:
           id: "ansible_user_credentials"
-          password: "{AQAAABAAAAAQCz1aSd5GyAgLGJK1huMhEM4i64OUNAg5fTzME1PDmOk=}"
+          password: "{AQAAABAAAAAQht1XFo+/uRwV8H+FTrmBVY9+5YC+fyDvczcC7Lp4W0c=}"
           scope: GLOBAL
           username: "vagrant"
           usernameSecret: true
