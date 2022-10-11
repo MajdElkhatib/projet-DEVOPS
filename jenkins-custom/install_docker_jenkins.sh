@@ -42,6 +42,8 @@ sleep 5
 export JENKINS_USERNAME="admin";
 export JENKINS_PASSWORD="password";
 
+sleep 30
+
 bash jenkins-import-jobs.sh
 echo "Fin de l'import des jobs"
 sleep 5
