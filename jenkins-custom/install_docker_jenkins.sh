@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # Script final
+cd
 
 PROJECT_NAME="ajc-projet-final-2";
 
-if [[ -d "${PROJECT_NAME}" ]]; then
+if [[ ! -d "${PROJECT_NAME}" ]]; then
     git clone "https://github.com/Romain-Revel/${PROJECT_NAME}";
 fi
 
