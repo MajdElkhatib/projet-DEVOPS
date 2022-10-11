@@ -12,6 +12,8 @@ pwd
 cd "${PROJECT_NAME}";
 pwd
 
+git pull
+
 ls -la
 git checkout dev
 ls -la
