@@ -3,7 +3,7 @@
         "1": {
             "Name": "{{ DB_NAME }}",
             "Group": "docker_postgres_group_1",
-            "Port": "{{ POSTGRES_PORT }}",
+            "Port": {{ POSTGRES_PORT }},
             "Username": "{{ DB_USER }}",
             "Host": "{{ POSTGRES_IP }}",
             "SSLMode": "prefer",
