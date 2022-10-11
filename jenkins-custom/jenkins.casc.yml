@@ -15,8 +15,8 @@ jenkins:
   authorizationStrategy:
     globalMatrix:
       permissions:
-        - "Overall/Administer:admin"
-        - "Overall/Read:authenticated"
+        - "USER:Overall/Administer:admin"
+        - "USER:Overall/Read:authenticated"
 
 security:
   queueItemAuthenticator:
