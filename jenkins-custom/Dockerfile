@@ -3,9 +3,8 @@ FROM jenkins/jenkins:centos7-jdk11
 ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
 ENV CASC_JENKINS_CONFIG /var/jenkins_home/jenkins.casc.yml
 
-COPY install_docker.sh /var/jenkins_home/install_docker.sh
-
-RUN bash /var/jenkins_home/install_docker.sh
+RUN curl -fsSL https://get.docker.com/ -o get-docker.sh && \
+    bash get-docker.sh
 
 COPY jenkins.plugins.txt /usr/share/jenkins/ref/jenkins.plugins.txt
 
