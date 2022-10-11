@@ -37,6 +37,7 @@ sleep 5
 
 # Installation de docker par exec
 # docker exec -ti --privileged -u 0 jenkins /bin/bash -c "curl -fsSL https://get.docker.com/ -o get-docker.sh && sh get-docker.sh && chmod 777 /var/run/docker.sock"
+# docker exec -ti --privileged -u 0 jenkins /bin/bash -c "apt-get update -y && apt-get install python3 python3-pip sshpass shellcheck -y && pip3 install ansible"
 
 # Import des jobs
 export JENKINS_USERNAME="admin";
