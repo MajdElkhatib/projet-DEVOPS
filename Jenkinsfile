@@ -74,7 +74,7 @@ pipeline {
         agent any
         steps {
             sh 'yum -y clean all && yum -y install epel-release && yum -y install ShellCheck'
-            sh 'shellcheck */*.sh >shellcheck.log'
+            sh 'shellcheck */*.sh >shellcheck.log || true'
         }
         post {
             always {
@@ -90,7 +90,7 @@ pipeline {
             catchError(buildResult: 'SUCCESS') {
                 sh """#!/bin/bash
                     # The null command `:` only returns exit code 0 to ensure following task executions.
-                    shellcheck -f checkstyle */*.sh > shellcheck.xml || :
+                    shellcheck -f checkstyle */*.sh > shellcheck.xml || true
                 """
             }
         }
