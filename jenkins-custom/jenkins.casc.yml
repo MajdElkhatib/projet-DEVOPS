@@ -17,7 +17,7 @@ credentials:
           id: "pgadmin_credentials"
           password: "pgadmin"
           scope: GLOBAL
-          username: "pgadmin"
+          username: "pgadmin@local.domain"
           usernameSecret: true
       - usernamePassword:
           id: "pgsql_credentials"
