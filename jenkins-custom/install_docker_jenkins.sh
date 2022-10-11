@@ -31,13 +31,15 @@ docker build -t jenkins:jcasc .
 echo "Fin du docker build"
 sleep 5
 
+docker stop jenkins
+docker rm jenkins
 docker run --name jenkins -dit -p 8080:8080 --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins:jcasc
 echo "Fin du docker run"
 sleep 5
 
 # Import des jobs
-JENKINS_USERNAME="admin";
-JENKINS_PASSWORD="password";
+export JENKINS_USERNAME="admin";
+export JENKINS_PASSWORD="password";
 
 bash jenkins-import-jobs.sh
 echo "Fin de l'import des jobs"
