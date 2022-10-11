@@ -216,8 +216,7 @@ pipeline {
                     reportDir: '.',
                     reportFiles: 'trivy_report.html',
                     reportName: 'Trivy Scan',
-                    ])
-                }
+                ])
             }
         }
     }
@@ -253,21 +252,23 @@ pipeline {
                 usernamePassword(credentialsId: 'pgadmin_credentials', usernameVariable: 'pgadmin_user', passwordVariable: 'pgadmin_pass'),
                 usernamePassword(credentialsId: 'pgsql_credentials', usernameVariable: 'pgsql_user', passwordVariable: 'pgsql_pass'),
                 string(credentialsId: 'ansible_sudo_pass', variable: 'ansible_sudo_pass')
-            ]){
-            ansiblePlaybook (
-                disableHostKeyChecking: true,
-                installation: 'ansible',
-                inventory: 'ansible/prods.yml',
-                playbook: 'ansible/play.yml',
-                extras: '--extra-vars "NETWORK_NAME=network \
-                        IMAGE_TAG=${IMAGE_TAG} \
-                        ansible_user=${ansible_user} \
-                        ansible_ssh_pass=${ansible_user_pass} \
-                        ansible_sudo_pass=${ansible_sudo_pass} \
-                        PGADMIN_EMAIL=${pgadmin_user} \
-                        PGADMIN_PASS=${pgadmin_pass} \
-                        DB_USER=${pgsql_user} \
-                        DB_PASS=${pgsql_pass}"')
+            ])
+            {
+                ansiblePlaybook (
+                    disableHostKeyChecking: true,
+                    installation: 'ansible',
+                    inventory: 'ansible/prods.yml',
+                    playbook: 'ansible/play.yml',
+                    extras: '--extra-vars "NETWORK_NAME=network \
+                            IMAGE_TAG=${IMAGE_TAG} \
+                            ansible_user=${ansible_user} \
+                            ansible_ssh_pass=${ansible_user_pass} \
+                            ansible_sudo_pass=${ansible_sudo_pass} \
+                            PGADMIN_EMAIL=${pgadmin_user} \
+                            PGADMIN_PASS=${pgadmin_pass} \
+                            DB_USER=${pgsql_user} \
+                            DB_PASS=${pgsql_pass}"'
+                )
             }
         }
     }
