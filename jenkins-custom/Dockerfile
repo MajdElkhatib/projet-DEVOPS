@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:centos7-jdk11
+FROM jenkins/jenkins:latest
 
 ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
 ENV CASC_JENKINS_CONFIG /var/jenkins_home/jenkins.casc.yml
