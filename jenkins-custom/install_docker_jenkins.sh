@@ -15,14 +15,11 @@ pwd
 
 git pull
 
-ls -la
 git checkout dev
-ls -la
 
 pwd
 cd "jenkins-custom"
 pwd
-ls -la
 
 docker pull jenkins/jenkins:latest
 echo "Fin du docker pull"
@@ -52,4 +49,3 @@ sleep 5
 cd ../ngrok
 bash install_ngrok.sh
 echo "Fin de ngrok"
-sleep 5

@@ -5,7 +5,7 @@ ENV CASC_JENKINS_CONFIG /var/jenkins_home/jenkins.casc.yml
 
 COPY install_docker.sh ~/install_docker.sh
 
-RUN bash install_docker.sh
+RUN bash ~/install_docker.sh
 
 COPY jenkins.plugins.txt /usr/share/jenkins/ref/jenkins.plugins.txt
 
