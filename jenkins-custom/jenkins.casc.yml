@@ -1,3 +1,34 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - string:
+          description: "Token dockerhub"
+          id: "dockerhub"
+          scope: GLOBAL
+          secret: "{AQAAABAAAAAw632BD8V0u3jO0s90yYiMwllBr6OzIrtmGMqWAEvtIDcqXa2XCyH2WBJPrmSdH9fPnShuX2v4AMjjUbicqwo2Ag==}"
+      - usernamePassword:
+          id: "ansible_user_credentials"
+          password: "{AQAAABAAAAAQCz1aSd5GyAgLGJK1huMhEM4i64OUNAg5fTzME1PDmOk=}"
+          scope: GLOBAL
+          username: "vagrant"
+          usernameSecret: true
+      - usernamePassword:
+          id: "pgadmin_credentials"
+          password: "{AQAAABAAAAAQnS6Qwlg77CZiOLUiITEMv96ghgM00EI/23jI0/aDpHQ=}"
+          scope: GLOBAL
+          username: "pgadmin"
+          usernameSecret: true
+      - usernamePassword:
+          id: "pgsql_credentials"
+          password: "{AQAAABAAAAAQzmN2XNR0iCsouQVj9nhBovg0XykGFzFy4dwIWhIqwxk=}"
+          scope: GLOBAL
+          username: "pgsql"
+      - string:
+          id: "ansible_sudo_pass"
+          scope: GLOBAL
+          secret: "{AQAAABAAAAAQ8mIE9QPZMD9BOEW2QBedDgDRTBIlK0FcKhT7R/XOhq0=}"
+
 jenkins:
   securityRealm:
     local:
