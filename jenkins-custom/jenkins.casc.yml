@@ -2,9 +2,16 @@ jenkins:
   securityRealm:
     local:
       allowsSignup: false
+      enableCaptcha: false
       users:
-       - id: admin
-         password: password
+        - id: admin
+          password: password
+          properties:
+          - "apiToken"
+          - mailer:
+              emailAddress: "rrr.revel@hotmail.fr"
+          - preferredProvider:
+              providerId: "default"
   authorizationStrategy:
     globalMatrix:
       permissions:
