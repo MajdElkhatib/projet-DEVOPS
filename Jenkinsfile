@@ -57,10 +57,10 @@ pipeline {
             }
         }
         steps {
-        sh '''
-            cd "${WORKSPACE}/ansible/"
-            ansible-lint play.yml > "${WORKSPACE}/ansible-lint.log" || true
-        '''
+            sh '''
+                cd "${WORKSPACE}/ansible/"
+                ansible-lint play.yml > "${WORKSPACE}/ansible-lint.log" || true
+            '''
         }
         post {
             always {
@@ -70,7 +70,7 @@ pipeline {
     }
 
     stage('Lint shell script files') {
-        when { changeset "**/*.sh"}
+        when { changeset "**/*.sh" }
         agent any
         steps {
             sh 'shellcheck */*.sh >shellcheck.log || true'
@@ -83,7 +83,7 @@ pipeline {
     }
 
     stage('Lint shell script files - checkstyle') {
-        when { changeset "**/*.sh"}
+        when { changeset "**/*.sh" }
         agent any
         steps {
             catchError(buildResult: 'SUCCESS') {
@@ -141,19 +141,18 @@ pipeline {
                     reportDir: '.',
                     reportFiles: 'trivy_report_project.html',
                     reportName: 'Trivy Scan Project',
-                    ])
-                }
+                ])
             }
         }
     }
 
     stage ('Build docker image') {
-        when { changeset "ic-webapp/releases.txt"}
+        when { changeset "ic-webapp/releases.txt" }
         steps{
             script{
                 sh '''
-                cd 'ic-webapp';
-                docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
+                    cd 'ic-webapp';
+                    docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
                 '''
             }
         }
@@ -272,6 +271,7 @@ pipeline {
             }
         }
     }
+
     stage ('Test full deployment') {
         steps {
             sh '''
@@ -288,5 +288,4 @@ pipeline {
             '''
         }
     }
-  }
 }
