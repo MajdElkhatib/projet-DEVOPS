@@ -1091,6 +1091,7 @@ Ce fichier alimentera le script de lancement de l'application web vitrine.
 ---
 ### Modification du dockerfile
 
+
 ```dockerfile
 FROM alpine:3.6
 
@@ -1111,7 +1112,9 @@ COPY --chown=icwebapp:icwebapp releases.txt /opt/ic-webapp/releases.txt
 
 USER icwebapp
 # Create the entry point script
-RUN echo -e "#!/bin/bash\nexport ODOO_URL=$(cat /opt/ic-webapp/releases.txt | grep ODOO_URL |sed -e 's/^ODOO_URL: \(.*\)$/\1/') && export PGADMIN_URL=$(cat /opt/ic-webapp/releases.txt | grep PGADMIN_URL |sed -e 's/^PGADMIN_URL: \(.*\)$/\1/') && python3 app.py" > /opt/ic-webapp/start.sh \
+RUN echo -e "#!/bin/bash\nexport ODOO_URL=$(cat /opt/ic-webapp/releases.txt | \
+grep ODOO_URL |sed -e 's/^ODOO_URL: \(.*\)$/\1/') && export PGADMIN_URL=$(cat /opt/ic-webapp/releases.txt | grep PGADMIN_URL | \
+sed -e 's/^PGADMIN_URL: \(.*\)$/\1/') && python3 app.py" \> /opt/ic-webapp/start.sh \
     && chmod +x /opt/ic-webapp/start.sh
 
 WORKDIR /opt/ic-webapp
