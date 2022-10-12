@@ -14,8 +14,8 @@ paginate: true
 
 - Serveur 1 : **192.168.99.12** Jenkins
     https://github.com/sadofrazer/jenkins-frazer.git
-- Serveur 2 : **192.168.99.20** Applications web site vitrine + pgadmin4
-- Serveur 3 : **192.168.99.21** Application Odoo
+- Serveur 2 : **192.168.99.21** Applications web site vitrine + pgadmin4
+- Serveur 3 : **192.168.99.20** Application Odoo (PostgreSQL)
 
 ---
 
@@ -27,35 +27,15 @@ Vagrant.configure("2") do |config|
   # Boucle pour créer les 2
   array.each_with_index do |val, index|
         config.vm.define "docker-#{val}" do |docker|
-             docker.vm.box = "geerlingguy/centos7"
-                if OS.linux?
-                    # Sous linux, il FAUT préciser le nom du réseau hôte
-                    # https://www.vagrantup.com/docs/providers/virtualbox/networking
-                    # Dans Virtualbox > Fichier > Gestionnaire de réseau hôte (CTRL + H):
-                    # - Vérifier la présence de vboxnet0, sinon le créer
-                    # - Vérifier l'adresse IPv4 et le masque, sinon les modifier (à faire 2 fois pour être pris en compte)
-                    #
-                    # Vérifier avec "ip -a" le nom, l'IP et le masque
+                #...
                     docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{index}", name: "vboxnet0"
-                elsif OS.windows?
+                #...
                         docker.vm.network "private_network",  type: "static", ip: "192.168.99.2#{index}"
-                else
-                        puts 'OS not managed'
-                end
+                #...
                 docker.vm.hostname = "docker-#{val}"
-                docker.vm.provider "virtualbox" do |v|
+                #...
                         v.name = "docker-#{val}"
-                        v.memory = 1024
-                        v.cpus = 1
-                end
-                docker.vm.provision :shell do |shell|
-                        shell.path = "install_docker.sh"
-                        shell.env = { 'ENABLE_ZSH' => ENV['ENABLE_ZSH'] }
-                end
-        end
-  end
-end
-# Fin
+                #...
 ```
 
 ---
@@ -84,7 +64,7 @@ sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 
 ---
 
-## Jenkins - Interface
+## Interface
 
 ![bg w:100%](./images/Jenkins-configuration-05-bienvenue.png)
 
@@ -94,7 +74,7 @@ sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 
 - Version datée
 - Interface web **laide** et **non ergonomique**
-- Installation ne partageant pas:
+- Les installations ne partagent pas:
     - Comptes
     - Plugins
     - Jobs
@@ -105,7 +85,8 @@ sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 
 ## Jenkins-custom - Automatisation de l'installation
 
-
+- Docker
+- jenkins/jenkins:lts-jdk11
 
 ---
 
@@ -119,7 +100,6 @@ RUN apt-get update && \
     apt-get install -qy curl python3 python3-pip sshpass shellcheck && \
     pip3 install ansible && \
     curl -sSL https://get.docker.com/ | sh
-
 USER jenkins
 # Plugins Jenkins
 COPY jenkins.plugins.txt /usr/share/jenkins/ref/jenkins.plugins.txt
@@ -132,7 +112,7 @@ COPY jenkins.casc.yml /var/jenkins_home/jenkins.casc.yml
 
 ---
 
-## Jenkins - Plugins par défaut
+## Plugins par défaut
 
 ```text
 antisamy-markup-formatter:latest
@@ -154,7 +134,7 @@ ws-cleanup:latest
 
 ---
 
-## Jenkins - Plugins supplémentaires
+## Plugins supplémentaires
 
 ```text
 ansible:latest
@@ -173,9 +153,11 @@ matrix-auth:latest
 
 ## jenkins-cli
 
-https://www.jenkins.io/doc/book/managing/cli/
+- https://www.jenkins.io/doc/book/managing/cli/
 
-https://medium.com/@muku.hbti/export-import-jenkins-job-and-their-plugins-53cafa5869fa
+- https://medium.com/@muku.hbti/export-import-jenkins-job-and-their-plugins-53cafa5869fa
+
+- https://www.digitalocean.com/community/tutorials/how-to-automate-jenkins-setup-with-docker-and-jenkins-configuration-as-code
 
 ---
 
@@ -218,65 +200,6 @@ done
 
 ---
 
-## Job ic-webapp-pipeline
-```xml
-<?xml version='1.1' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@1189.va_d37a_e9e4eda_">
-  <actions>
-    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2114.v2654ca_721309"/>
-    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2114.v2654ca_721309">
-      <jobProperties/>
-      <triggers/>
-      <parameters/>
-      <options/>
-    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
-  </actions>
-  <description></description>
-  <keepDependencies>false</keepDependencies>
-  <properties>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.34.3.1">
-      <projectUrl>https://github.com/Romain-Revel/ajc-projet-final-2.git/</projectUrl>
-      <displayName></displayName>
-    </com.coravy.hudson.plugins.github.GithubProjectProperty>
-    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-      <triggers>
-        <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.34.3.1">
-          <spec></spec>
-        </com.cloudbees.jenkins.GitHubPushTrigger>
-        <hudson.triggers.SCMTrigger>
-          <spec>*/10 * * * *</spec>
-          <ignorePostCommitHooks>false</ignorePostCommitHooks>
-        </hudson.triggers.SCMTrigger>
-      </triggers>
-    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-  </properties>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2729.vea_17b_79ed57a_">
-    <scm class="hudson.plugins.git.GitSCM" plugin="git@4.12.1">
-      <configVersion>2</configVersion>
-      <userRemoteConfigs>
-        <hudson.plugins.git.UserRemoteConfig>
-          <url>https://github.com/Romain-Revel/ajc-projet-final-2.git</url>
-        </hudson.plugins.git.UserRemoteConfig>
-      </userRemoteConfigs>
-      <branches>
-        <hudson.plugins.git.BranchSpec>
-          <name>*/dev</name>
-        </hudson.plugins.git.BranchSpec>
-      </branches>
-      <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-      <submoduleCfg class="empty-list"/>
-      <extensions/>
-    </scm>
-    <scriptPath>Jenkinsfile</scriptPath>
-    <lightweight>true</lightweight>
-  </definition>
-  <triggers/>
-  <disabled>false</disabled>
-</flow-definition>
-```
-
----
-
 ```bash
 # Restaurer tous les jobs
 for JOB_FILE in $(cd "jobs"; ls *.xml)
@@ -286,10 +209,6 @@ do
     java -jar jenkins-cli.jar -s "${URL}" -auth "${JENKINS_USERNAME}":"${JENKINS_PASSWORD}" create-job "${JOB_FILE%%.xml}" < "jobs/${JOB_FILE}"
 done
 ```
-
----
-
-Image jobs ?
 
 ---
 
@@ -380,7 +299,9 @@ security:
 
 Ngrok est un reverse-proxy qui permet d'ouvrir sur internet des ports d'une machine
 
-### Alternatives à ngrok
+Utilisé pour la partie **webhook**
+
+Alternatives à ngrok:
 
 - Vagrant share
     <https://www.vagrantup.com/docs/share>
@@ -412,6 +333,14 @@ nohup ngrok http 8080 &
 # Récupération de l'URL
 curl "http://localhost:4040/api/tunnels";
 ```
+
+---
+
+![bg w:100%](./images/Jenkins-ngrok-1.png)
+
+---
+
+![bg w:100%](./images/Jenkins-ngrok-2.png)
 
 ---
 
@@ -519,6 +448,8 @@ stage("Lint ansible playbook files") {
 
 ---
 
+### Lint shell scripts
+
 ```groovy
 stage('Lint shell script files') {
     when { changeset "**/*.sh" }
@@ -535,6 +466,8 @@ stage('Lint shell script files') {
 ```
 
 ---
+
+### Lint shell scripts - checkstyle
 
 ```groovy
 stage('Lint shell script files - checkstyle') {
@@ -558,6 +491,8 @@ stage('Lint shell script files - checkstyle') {
 
 ---
 
+### Lint docker files
+
 ```groovy
 stage ("Lint docker files") {
     when { changeset "**/Dockerfile"}
@@ -579,6 +514,8 @@ stage ("Lint docker files") {
 
 ---
 
+### Push docker image
+
 ```groovy
 stage ('Login and push docker image') {
     when { changeset "ic-webapp/releases.txt"}
@@ -598,6 +535,8 @@ stage ('Login and push docker image') {
 ```
 
 ---
+
+### Déploiement avec Ansible
 
 ```groovy
 stage ('Deploy to prod with Ansible') {
@@ -654,45 +593,61 @@ stage ('Test full deployment') {
 
 ---
 
-### Trivy
+### Troubleshooting
 
-https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-trivy
-
+- Attention aux redirections
+- Attention au délai entre la fin d'Ansible et la disponibilité du site web
 
 ---
 
-### Problèmes rencontrés
+### Trivy
+
+Scanner de vulnérabilité
+- code source (fs, repo)
+- dépendances
+- images conteneur
+
+https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-trivy
+
+---
+
+### Webhooks
+
+- Webhook Github
+
+- Tâche planifiée qui vérifie régulièrement les modifications du SCM
+
+- Tâche planifiée qui build régulièrement (MAUVAIS)
+
+---
+
+### Problèmes rencontrés avec Jenkins
 
 - Version pas à jour
 - Agent docker ne fonctionne pas pour (shellcheck, trivy)
 - Jenkins difficile à configurer automatiquement
-- 
 
 ---
 
 ### Astuces
 
-- Commencer simplement
-- when { changeset "ic-webapp/releases.txt"}
-- Il est possible de rejouer un build à partir d'une étape, mais ça ne met pas à jour le code source
-- Créer un job manuel pour faire des tests
-- Ne tester qu'une seule étape à la fois
+- Commencer simplement, par des étapes qui fonctionnent
+- when **{ changeset "\*\*/*.ext"}** pour éviter de relancer inutilement certains stages
+- Il est possible de rejouer un build à partir d'une étape
+  mais sur le **même** commit
+- Créer un **job manuel** pour faire des tests...
+- ...et qui ne teste que l'étape souhaitée
 - Exporter, versionner, importer les jobs
 
 ---
 
 ### TODO
 
-- Hook github
+- Webook github
 - Healthcheck sur les conteneurs
 - Auto-merge sur main à la réussite du pipeline
 - Utiliser un master Jenkins et un ou plusieurs slaves
 - Finir d'implémenter les tests avec Trivy
 - Tester l'installation avec un role ansible
   https://github.com/geerlingguy/ansible-role-jenkins
-
----
-
-### Retours
-
-- Ne pas utiliser des versions trop vieilles
+- Job qui exporte ET versionne automatiquement les pipelines
