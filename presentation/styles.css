@@ -1,0 +1,81 @@
+/*
+ * @theme ajc
+ * @author Romain REVEL
+ *
+ * @auto-scaling true
+ * @size 16:9 1280px 720px
+ * @size 4:3 960px 720px
+*/
+
+@import 'uncover';
+
+
+
+/* */
+section.class {
+    font-size: 20px
+}
+
+section::after {
+    width: 250px;
+    content: 'Slide ' attr(data-marpit-pagination) ' sur ' attr(data-marpit-pagination-total);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-align: left;
+}
+
+h1 {
+    font-size: 2em;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.7em;
+}
+
+h3 {
+    font-size: 1.4em;
+    letter-spacing: 2px;
+}
+
+h4 {
+    font-size: 1.2em;
+    letter-spacing: 2px;
+}
+
+h5 {
+    font-size: 1em;
+    letter-spacing: 1px;
+}
+
+h6 {
+    font-size: 0.8em;
+    letter-spacing: 1px;
+}
+
+header,
+footer {
+    text-align: left;
+}
+
+/* Classe pour la table des matières */
+section.table_of_content {
+    font-size: 0.8em;
+    text-align: left;
+}
+
+section > ol {
+    columns: 2;
+    -webkit-columns: 2;
+    -moz-columns: 2;
+}
+
+section > ol li,ol,ul {
+    text-align: left;
+}
