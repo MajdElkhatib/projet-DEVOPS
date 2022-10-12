@@ -140,7 +140,13 @@ pipeline {
         }
 
         stage ('Build docker image') {
-            when { changeset "ic-webapp/releases.txt" }
+            when { 
+                anyOf{
+                    changeset "ic-webapp/releases.txt"
+                    changeset "**/Dockerfile"
+                }
+                
+            }
             steps{
                 script{
                     sh '''
@@ -154,7 +160,7 @@ pipeline {
         stage ('Test docker image') {
             when { changeset "ic-webapp/releases.txt"}
             steps{
-                script{
+                script {
                 sh '''
                     docker stop ${CONTAINER_NAME} || true;
                     docker rm ${CONTAINER_NAME} || true;
