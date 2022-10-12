@@ -25,6 +25,8 @@ Déployer des conteneurs docker avec 2 rôles  :
 - odoo_role : lance 2 conteneurs celui de odoo et celui de la base de donnée postgres
 - pgadmin_role :  lance le site vitrine ic-webapp et un conteneur pgadmin pour visualiser la base de donnée postgres de odoo
 
+NB : Toutes les données sont variabilisées donc pourront être surchargée par ansible
+
 
 ---
 
