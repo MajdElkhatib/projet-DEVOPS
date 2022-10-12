@@ -29,9 +29,9 @@ pipeline {
             }
         }
 
-        stage('Lint markdown files') {
-            when { changeset "**/*.md"}
-            agent {
+//        stage('Lint markdown files') {
+//            when { changeset "**/*.md"}
+/* *           agent {
                 docker {
                     image 'ruby:alpine'
                 }
@@ -48,7 +48,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage("Lint ansible playbook files") {
             when { changeset "ansible/**/*.yml"}
             agent {
