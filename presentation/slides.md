@@ -954,9 +954,9 @@ tasks/main.yml
 ```
 ---
 
-#### Le Playbook Ansible
+#### Le playbook Ansible
 
-Un playbook Ansible est un modèle de tâches d'automatisation. Les playbooks Ansible sont exécutés sur un ensemble, un groupe ou une classification d'hôtes, qui forment ensemble un inventaire.
+Un playbook Ansible est un modèle de tâches d'automatisation. Les playbooks Ansible sont exécutés sur un **ensemble**, un **groupe** ou une **classification** d'hôtes, qui forment ensemble un inventaire.
 
 Source: https://www.redhat.com/fr/topics/automation/what-is-an-ansible-playbook
 
@@ -1032,6 +1032,14 @@ La structure de notre répertoire Ansible
     │   └── vars
     │       └── main.yml
 ```
+
+---
+
+![w:100%](./images/ansible-playbook-1.png)
+
+---
+
+![w:100%](./images/ansible-playbook-2.png)
 
 ---
 
@@ -1112,8 +1120,9 @@ sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 
 ---
 
-## Jenkins-custom - Automatisation de l'installation
+## Automatisation de l'installation
 
+jenkins-custom :
 - Docker
 - jenkins/jenkins:lts-jdk11
 
@@ -1225,11 +1234,7 @@ for JOB_NAME in $JOBS
 do
     java -jar jenkins-cli.jar -s "${URL}" -auth "${JENKINS_USERNAME}":"${JENKINS_PASSWORD}" get-job "${JOB_NAME}" > "jobs/${JOB_NAME}.xml";
 done
-```
 
----
-
-```bash
 # Restaurer tous les jobs
 for JOB_FILE in $(cd "jobs"; ls *.xml)
 do
@@ -1251,6 +1256,7 @@ Plugin [Configuration as code](https://plugins.jenkins.io/configuration-as-code/
 
 ---
 
+Compte admin
 ```groovy
 jenkins:
   securityRealm:
@@ -1270,6 +1276,7 @@ jenkins:
 
 ---
 
+URL
 ```groovy
 unclassified:
   location:
@@ -1278,6 +1285,7 @@ unclassified:
 
 ---
 
+Credentials
 ```groovy
 credentials:
   system:
@@ -1304,6 +1312,7 @@ credentials:
 
 ---
 
+Sécurité
 ```groovy
 jenkins:
   //...
@@ -1665,6 +1674,32 @@ https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-tri
 
 ---
 
+```groovy
+stage("Trivy scan") {
+    agent any
+    steps {
+        sh 'rm -Rf ./trivy || true'
+        sh 'curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v0.18.3'
+        sh './trivy --exit-code 0  image -o trivy-icwebapp.log ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG}'
+        sh './trivy --exit-code 1  image --severity=CRITICAL -o trivy-icwebapp_CRITICAL.log ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG}'
+        sh './trivy --exit-code 0  image --severity=CRITICAL -o trivy-odoo13.log odoo:13'
+        sh './trivy --exit-code 0  image --severity=CRITICAL -o trivy-postgres13.log postgres:13'
+        sh './trivy --exit-code 0  image --severity=CRITICAL -o trivy-pgadmin4.log dpage/pgadmin4'
+    }
+    post {
+        always {
+            archiveArtifacts "trivy-icwebapp.log"
+            archiveArtifacts "trivy-icwebapp_CRITICAL.log"
+            archiveArtifacts "trivy-odoo13.log"
+            archiveArtifacts "trivy-postgres13.log"
+            archiveArtifacts "trivy-pgadmin4.log"
+        }
+    }
+}
+```
+
+---
+
 ### Déclenchement automatique
 
 - Webhook Github
@@ -1680,6 +1715,7 @@ https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-tri
 - Version pas à jour
 - Agent docker ne fonctionne pas pour (shellcheck, trivy)
 - Jenkins difficile à configurer automatiquement
+- Documentation non officielle plus forcément bonne
 
 ---
 
@@ -1697,12 +1733,11 @@ https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-tri
 
 ### TODO
 
-- Webook github
+- Webhook github
 - Healthcheck sur les conteneurs
 - Auto-merge sur main à la réussite du pipeline
 - Utiliser un master Jenkins et un ou plusieurs slaves
-- Finir d'implémenter les tests avec Trivy
-- Tester l'installation avec un role ansible
+- Tester l'installation **Jenkins** avec un role ansible
   https://github.com/geerlingguy/ansible-role-jenkins
 - Job qui exporte ET versionne automatiquement les pipelines
 
