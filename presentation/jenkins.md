@@ -167,13 +167,15 @@ matrix-auth:latest
 
 ---
 
-Image UI Jenkins récent...
+![bg w:100%](./images/Jenkins-lastest.png)
 
 ---
 
 ## jenkins-cli
 
 https://www.jenkins.io/doc/book/managing/cli/
+
+https://medium.com/@muku.hbti/export-import-jenkins-job-and-their-plugins-53cafa5869fa
 
 ---
 
@@ -652,6 +654,22 @@ stage ('Test full deployment') {
 
 ---
 
+### Trivy
+
+https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-trivy
+
+
+---
+
+### Problèmes rencontrés
+
+- Version pas à jour
+- Agent docker ne fonctionne pas pour (shellcheck, trivy)
+- Jenkins difficile à configurer automatiquement
+- 
+
+---
+
 ### Astuces
 
 - Commencer simplement
@@ -665,61 +683,16 @@ stage ('Test full deployment') {
 
 ### TODO
 
+- Hook github
+- Healthcheck sur les conteneurs
+- Auto-merge sur main à la réussite du pipeline
 - Utiliser un master Jenkins et un ou plusieurs slaves
 - Finir d'implémenter les tests avec Trivy
-- Auto-merge sur main à la réussite du pipeline
+- Tester l'installation avec un role ansible
+  https://github.com/geerlingguy/ansible-role-jenkins
 
 ---
 
 ### Retours
 
 - Ne pas utiliser des versions trop vieilles
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
