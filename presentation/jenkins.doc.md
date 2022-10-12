@@ -64,10 +64,6 @@ https://plugins.jenkins.io/configuration-as-code/
 
 https://plugins.jenkins.io/saferestart/
 
-## Gérer Jenkins avec sa CLI
-
-https://www.jenkins.io/doc/book/managing/cli/
-
 ## Sauvegarder / versionner la configuration de Jenkins
 
 https://jenkins-le-guide-complet.github.io/html/sect-maint-backups.html
