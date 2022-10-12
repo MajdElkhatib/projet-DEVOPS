@@ -20,6 +20,65 @@ paginate: true
 ---
 
 ## Table des matières
+1) [Introduction](#2)
+  1. [Contexte](#2)
+  1. [Rappel du sujet](#2)
+  1. [Analyse du sujet](#2)
+  1. [Méthodologie](#2)
+  1. [Choix des outils](#2)
+
+---
+
+2) [Partie 1 - Kubernetes](#2)
+  1. [Infrastructure](#2)
+  1. [Vagrant](#2)
+  1. [Conteneurisation de la web app](#2)
+  1. [Déploiement avec Kubernetes](#2)
+    * [Helm](#2)
+    * [Longhorn](#2)
+    * [Architecture du namespace](#2)
+    * [Les manifests](#2)
+  1. [Procédure de déploiement](#2)
+  1. [La validation des fichiers](#2)
+
+---
+
+3) [Partie 2 - Jenkins et Ansible](#2)
+  1) [Mise en place d’un pipeline CI/CD](#2)
+  1) [Ansible](#2)
+    * [Création des rôles](#2)
+    * [Rôle Odoo](#2)
+    * [Rôle PgAdmin](#2)
+    * [Le Playbook Ansible](#2)
+  1) [Jenkins](#2)
+    * [Infrastructure](#2)
+    * [Script d'installation](#2)
+    * [Interface](#2)
+    * [Inconvénients](#2)
+    * [Automatisation de l'installation](#2)
+    * [Plugins par défaut](#2)
+    * [Plugins supplémentaires](#2)
+    * [jenkins-cli](#2)
+    * [Configuration de Jenkins](#2)
+    * [Rendre Jenkins accessible avec Ngrok](#2)
+    * [Pipeline(s)](#2)
+      1) [Structure](#2)
+      1) [Lint YAML](#2)
+      1) [Lint markdown](#2)
+      1) [Lint ansible](#2)
+      1) [Lint shell scripts](#2)
+      1) [Lint shell scripts - checkstyle](#2)
+      1) [Lint docker files](#2)
+      1) [Push docker image](#2)
+      1) [Déploiement avec Ansible](#2)
+      1) [Test final](#2)
+      1) [Troubleshooting](#2)
+      1) [Trivy](#2)
+      1) [Déclenchement automatique](#2)
+    1) [Problèmes rencontrés avec Jenkins](#2)
+    1) [Astuces](#2)
+    1) [TODO](#2)
+4) [Conclusion](#2)
 
 ---
 
