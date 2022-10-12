@@ -1,7 +1,6 @@
 ---
 # defaults file for odoo_role
 
-PGADMIN_PORT: "8082"
 DB_USER: "odoo"
 DB_PASS: "odoo"
 DB_NAME: "postgres"
