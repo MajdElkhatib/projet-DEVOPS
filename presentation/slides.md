@@ -551,10 +551,16 @@ status:
 ```bash
 git clone https://github.com/Romain-Revel/ajc-projet-final-2.git
 cd ajc-projet-final-2/manifests
+```
+Vous pouvez personnalisé l'environnement en modifiant les manifests que ce soit pour les paramètres des conteneurs ou la configuration des services.
+
+Une fois configurée, il suffit de faire :
+
+```bash
 ./install_app.sh
 ```
 
-Ce script demandera de rentrer les mots de passes qui devront être utilisé.
+Ce script demandera de rentrer les mots de passes qui devront être utilisés. Celui de la base de données ```postgres``` et de l'utilisateur ```pgadmin``` 
 
 - Avec vagrant
 ```bash
@@ -564,9 +570,7 @@ vagrant up
 ```
 
 Cela installera une VM contenant minikube, longhorn et tout l'environnement de production avec comme mot de passe pour la BDD : odoo et pour pgadmin : pgadmin
-Si vous avez besoin de changer ces mots de passe, il faut éditer le script "install_app.sh" présent dans le répertoire.
-
-
+Si vous avez besoin de changer ces mots de passe, il faut éditer le script ``` install_app.sh ``` présent dans le répertoire.
 
 ---
 
@@ -646,3 +650,10 @@ docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
 ---
 
 ## Conclusion
+
+- Approche kubernetes : 
+  - Avantages
+  - Inconvénients
+- Approche pipeline CI/CD avec ansible et docker
+  - Avantages
+  - Inconvénients
