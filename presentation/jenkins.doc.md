@@ -57,6 +57,8 @@ https://github.com/cloudogu/gitops-playground/blob/d41094a7927f91cb05aaa40b35b54
 
 https://github.com/cloudogu/gitops-playground/blob/d41094a7927f91cb05aaa40b35b5410719ed1e8b/scripts/jenkins/jenkins-REST-client.sh
 
+https://medium.com/@muku.hbti/export-import-jenkins-job-and-their-plugins-53cafa5869fa
+
 ## Plugins à tester
 
 https://www.jenkins.io/doc/book/managing/casc/
