@@ -289,7 +289,6 @@ if [ "${HELM_PATH}" == "" ]; then
 fi
 ```
 
-
 ---
 #### Longhorn
 Cloud native distributed block storage for Kubernetes
@@ -338,6 +337,7 @@ fi
 ---
 
 - Pré-génération des manifestes
+Grace à kubectl nous pouvons générer des fichiers .yml à partir de commandes. Voici quelques exemples :
 
 Pour avoir la trame du template container dans le deployment
 ```bash
@@ -541,6 +541,31 @@ status:
 <h1><span style="display:block;text-align:center">Schéma complet</span></h1>
 
 ![h:90% w:90%](./images/k8s-graph-all.svg)
+
+---
+
+<h1>Procédure de déploiement : </h1>
+
+- Kubernetes existant
+
+```bash
+git clone https://github.com/Romain-Revel/ajc-projet-final-2.git
+cd ajc-projet-final-2/manifests
+./install_app.sh
+```
+
+Ce script demandera de rentrer les mots de passes qui devront être utilisé.
+
+- Avec vagrant
+```bash
+git clone https://github.com/Romain-Revel/ajc-projet-final-2.git
+cd ajc-projet-final-2/infrastructure/ic-webapp
+vagrant up
+```
+
+Cela installera une VM contenant minikube, longhorn et tout l'environnement de production avec comme mot de passe pour la BDD : odoo et pour pgadmin : pgadmin
+Si vous avez besoin de changer ces mots de passe, il faut éditer le script "install_app.sh" présent dans le répertoire.
+
 
 
 ---
