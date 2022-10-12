@@ -129,6 +129,27 @@ pipeline {
             }
         }
 
+        stage("Trivy scan") {
+            agent any
+            steps {
+                sh 'rm -Rf ./trivy || true'
+                sh 'curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v0.18.3'
+                sh './trivy --exit-code 0  image -o trivy-icwebapp.log ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG}'
+                sh './trivy --exit-code 1  image --severity=CRITICAL -o trivy-icwebapp_CRITICAL.log ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG}'
+                sh './trivy --exit-code 0  image --severity=CRITICAL -o trivy-odoo13.log odoo:13'
+                sh './trivy --exit-code 0  image --severity=CRITICAL -o trivy-postgres13.log postgres:13'
+                sh './trivy --exit-code 0  image --severity=CRITICAL -o trivy-pgadmin4.log dpage/pgadmin4'
+            }
+            post {
+                always {
+                    archiveArtifacts "trivy-icwebapp.log"
+                    archiveArtifacts "trivy-icwebapp_CRITICAL.log"
+                    archiveArtifacts "trivy-odoo13.log"
+                    archiveArtifacts "trivy-postgres13.log"
+                    archiveArtifacts "trivy-pgadmin4.log"
+                }
+            }
+        }
         stage ('Test docker image') {
             when { changeset "ic-webapp/releases.txt"}
             steps{
