@@ -96,6 +96,8 @@ Source: https://www.votre-it-facile.fr/travail-collaboratif-et-travail-cooperati
 ---
 
 ### Vagrant
+Utilisation d'un fichier Vagrant fourni par Dirane lors de notre formation.
+Nous l'avons adapté pour répondre à notre besoin.
 
 ```ruby
 # Version initiale fonctionnant uniquement sous Windows
@@ -119,7 +121,10 @@ end
 
 ---
 
+Comme nous utilisons deux environnements différents, nous avons fait un module dans le fichier vagrant (en ruby). Ce module sera utilisé pour tous les fichiers vagrant qui suivront.
+
 ```ruby
+
 # Module pour gérer l'OS hôte
 module OS
         def OS.windows?
@@ -138,6 +143,8 @@ end
 ```
 
 ---
+
+Voici comment utiliser le module.
 
 ```ruby
     # Ajout
@@ -163,6 +170,8 @@ end
 
 ### Conteneurisation de la web app
 
+La première étape est de procéder à la conteneurisation de l'application web vitrine.
+
 https://github.com/sadofrazer/ic-webapp.git
 
 Comment l'intégrer dans notre repo git ?
@@ -171,6 +180,8 @@ Comment l'intégrer dans notre repo git ?
 - Git subtrees -> pas le temps
 
 ---
+
+Pour cela un fichier Dockerfile a été créé enfin de générer une image.
 
 ```docker
 # Dockerfile ic-webapp
@@ -192,7 +203,11 @@ EXPOSE 8080
 CMD [ "python3", "app.py" ]
 ```
 
+On peut voir que pour des raisons de bonnes pratiques, nous avons créé un USER (icwebapp) qui lancera l'application.
+
 ---
+
+Bien entendu, il faut tester l'application. Afin de répéter les commandes un script a été créé.
 
 ```bash
 #!/bin/bash
@@ -220,6 +235,8 @@ curl http://localhost:${port}
 
 ---
 
+Une fois l'image construite, et un conteneur créé à partir de cette image a été testé. Nous pouvons publier l'image sur le registry dockerhub.
+
 ```bash
 #!/bin/bash
 # Script de publication et de nettoyage
@@ -244,9 +261,13 @@ docker push sh0t1m3/${image}:1.0
 ---
 
 ### Déploiement avec Kubernetes
+
+Afin de pouvoir déployer la totalité de l'environnement, dans cette approche nous allons utiliser kubernetes (minikube)
+On a installé longhorn qui est chargé de gérer les PVs (Persistent Volume)
 - Installation de longhorn (avec helm)
 - Création des manifests
 - Application des manifests
+
 ---
 
 #### Helm
