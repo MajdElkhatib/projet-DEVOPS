@@ -20,15 +20,16 @@ paginate: true
 
 ### Création des Rôles Ansible
 
-Déployer des conteneurs docker avec 2 rôles : 
+Déployer des conteneurs docker avec 2 rôles  : 
 
 - odoo_role : lance 2 conteneurs celui de odoo et celui de la base de donnée postgres
 - pgadmin_role :  lance le site vitrine ic-webapp et un conteneur pgadmin pour visualiser la base de donnée postgres de odoo
 
+
 ---
 
 ### Rôle Odoo
-Déploye 2 conteneurs avec le template docker-compose:
+Déploie 2 conteneurs avec le template docker-compose  :
 - Conteneur odoo
 - Conteneur postgres
 
@@ -126,7 +127,7 @@ tasks/main.yml
 
 ---
 
-Déploye deux conteneurs via les templates docker-compose et servers:
+Déploie deux conteneurs via les templates docker-compose et servers :
 
 - pgadmin
 - ic-webapp
@@ -254,7 +255,9 @@ Source: https://www.redhat.com/fr/topics/automation/what-is-an-ansible-playbook
 ---
 play.yml
 
+
 ```yaml
+# Notre playbook 
 - name: "installation de odoo"
   hosts: prod-odoo
   roles:
@@ -270,6 +273,7 @@ play.yml
 prods.yml
 
 ```yaml
+# L'inventaire
 all:
   children:
     prod-odoo:
@@ -278,7 +282,57 @@ all:
     prod-pgadmin:
       hosts:
         docker-pgadmin-icwebapp:
----
+```
 
+---
+La structure de notre répertoire Ansible
+
+```yaml
+├── group_vars
+│   ├── prod-odoo.yml
+│   └── prod-pgadmin.yml
+├── host_vars
+│   ├── docker-odoo.yml
+│   └── docker-pgadmin-icwebapp.yml
+├── play.yml
+├── prods.yml
+└── roles
+    ├── odoo_role
+    │   ├── defaults
+    │   │   └── main.yml
+    │   ├── handlers
+    │   │   └── main.yml
+    │   ├── meta
+    │   │   └── main.yml
+    │   ├── README.md
+    │   ├── tasks
+    │   │   └── main.yml
+    │   ├── templates
+    │   │   └── docker-compose.yml.j2
+    │   ├── tests
+    │   │   ├── inventory
+    │   │   └── test.yml
+    │   └── vars
+    │       └── main.yml
+    └── pgadmin_role
+        ├── defaults
+        │   └── main.yml
+        ├── handlers
+        │   └── main.yml
+        ├── meta
+        │   └── main.yml
+        ├── README.md
+        ├── tasks
+        │   └── main.yml
+        ├── templates
+        │   ├── docker-compose.yml.j2
+        │   └── servers.json.j2
+        ├── tests
+        │   ├── inventory
+        │   └── test.yml
+        └── vars
+            └── main.yml
+```
+---
 
 ## Conclusion
