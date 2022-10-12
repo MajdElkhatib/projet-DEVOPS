@@ -123,27 +123,6 @@ pipeline {
                     image 'aquasec/trivy:latest'
                 }
             }
-            steps {
-                script {
-                    sh """
-                        trivy fs --format template --output trivy_report_project.html .
-                    """
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "trivy_report_project.html", fingerprint: true
-
-                    publishHTML (target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: '.',
-                        reportFiles: 'trivy_report_project.html',
-                        reportName: 'Trivy Scan Project',
-                    ])
-                }
-            }
         }
 
         stage ('Build docker image') {
