@@ -60,7 +60,7 @@ end
 
 ---
 
-## Serveur 1 - Script d'installation
+## Jenkins - Script d'installation
 
 ```bash
 #!/bin/bash
@@ -84,14 +84,16 @@ sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 
 ---
 
-## Serveur 1 - Interface
+## Jenkins - Interface
+
+![bg w:100%](./images/Jenkins-configuration-05-bienvenue.png)
 
 ---
 
-## Serveur 1 - Inconvénients
+## Jenkins - Inconvénients
 
 - Version datée
-- Interface web laide et non ergonomique
+- Interface web **laide** et **non ergonomique**
 - Installation ne partageant pas:
     - Comptes
     - Plugins
@@ -101,7 +103,7 @@ sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 
 ---
 
-## Serveur 1 - Automatisation de l'installation
+## Jenkins-custom - Automatisation de l'installation
 
 
 
@@ -130,7 +132,7 @@ COPY jenkins.casc.yml /var/jenkins_home/jenkins.casc.yml
 
 ---
 
-## Plugins Jenkins par défaut
+## Jenkins - Plugins par défaut
 
 ```text
 antisamy-markup-formatter:latest
@@ -152,7 +154,7 @@ ws-cleanup:latest
 
 ---
 
-## Plugins Jenkins supplémentaires
+## Jenkins - Plugins supplémentaires
 
 ```text
 ansible:latest
@@ -372,7 +374,50 @@ security:
 
 ---
 
+### Rendre Jenkins accessible avec Ngrok
+
+Ngrok est un reverse-proxy qui permet d'ouvrir sur internet des ports d'une machine
+
+### Alternatives à ngrok
+
+- Vagrant share
+    <https://www.vagrantup.com/docs/share>
+
+- Localtunnel
+    <https://github.com/localtunnel/localtunnel>
+
+---
+
+```bash
+#!/bin/bash
+# Script d'installation et de lancement de ngrok
+FILE_NAME="ngrok-v3-stable-linux-amd64.tgz";
+if [[ ! -f "/usr/local/bin/ngrok" ]]; then
+    # Téléchargement
+    # https://ngrok.com/download
+    if [[ ! -f "${FILE_NAME}" ]]; then
+        wget "https://bin.equinox.io/c/bNyj1mQVY4c/${FILE_NAME}";
+    fi
+
+    # Décompression et installation
+    sudo tar xvzf "${FILE_NAME}" -C /usr/local/bin;
+fi
+sleep 3
+# Enregistrement
+ngrok config add-authtoken $(cat token.txt);
+# Lancement
+nohup ngrok http 8080 &
+# Récupération de l'URL
+curl "http://localhost:4040/api/tunnels";
+```
+
+---
+
 ## Pipeline(s)
+
+---
+
+### Structure
 
 ```groovy
 // Jenkinsfile
@@ -380,7 +425,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "ic-webapp"
-        IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
+        IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt \
+        |grep version | cut -d\\: -f2|xargs')}"
         CONTAINER_NAME = "ic-webapp"
         USER_NAME = "sh0t1m3"
     }
@@ -395,51 +441,239 @@ pipeline {
 
 ---
 
+### Lint YAML
 
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
+```groovy
+stage('Lint yaml files') {
+    when { changeset "**/*.yml"}
+    agent {
+        docker {
+            image 'sdesbure/yamllint'
+        }
+    }
+    steps {
+        sh 'yamllint --version'
+        sh 'yamllint ${WORKSPACE} >report_yml.log || true'
+    }
+    post {
+        always {
+            archiveArtifacts 'report_yml.log'
+        }
+    }
+}
+```
 
 ---
 
+### Lint markdown
 
+```groovy
+stage('Lint markdown files') {
+    when { changeset "**/*.md"}
+    agent {
+        docker {
+            image 'ruby:alpine'
+        }
+    }
+    steps {
+        sh 'apk --no-cache add git'
+        sh 'gem install mdl'
+        sh 'mdl --version'
+        sh 'mdl --style all --warnings --git-recurse ${WORKSPACE} > md_lint.log || true'
+    }
+    post {
+        always {
+            archiveArtifacts 'md_lint.log'
+        }
+    }
+}
+```
 
 ---
 
+### Lint ansible
 
+```groovy
+stage("Lint ansible playbook files") {
+    when { changeset "ansible/**/*.yml"}
+    agent {
+        docker {
+            image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+        }
+    }
+    steps {
+        sh '''
+            cd "${WORKSPACE}/ansible/"
+            ansible-lint play.yml > "${WORKSPACE}/ansible-lint.log" || true
+        '''
+    }
+    post {
+        always {
+            archiveArtifacts "ansible-lint.log"
+        }
+    }
+}
+```
 
 ---
 
-
+```groovy
+stage('Lint shell script files') {
+    when { changeset "**/*.sh" }
+    agent any
+    steps {
+        sh 'shellcheck */*.sh >shellcheck.log || true'
+    }
+    post {
+        always {
+            archiveArtifacts 'shellcheck.log'
+        }
+    }
+}
+```
 
 ---
 
-
+```groovy
+stage('Lint shell script files - checkstyle') {
+    when { changeset "**/*.sh" }
+    agent any
+    steps {
+        catchError(buildResult: 'SUCCESS') {
+            sh """#!/bin/bash
+                # The null command `:` only returns exit code 0 to ensure following task executions.
+                shellcheck -f checkstyle */*.sh > shellcheck.xml || true
+            """
+        }
+    }
+    post {
+        always {
+            archiveArtifacts 'shellcheck.xml'
+        }
+    }
+}
+```
 
 ---
 
+```groovy
+stage ("Lint docker files") {
+    when { changeset "**/Dockerfile"}
+    agent {
+        docker {
+            image 'hadolint/hadolint:latest-debian'
+        }
+    }
+    steps {
+        sh 'hadolint $PWD/**/Dockerfile | tee -a hadolint_lint.log'
+    }
+    post {
+        always {
+            archiveArtifacts 'hadolint_lint.log'
+        }
+    }
+}
+```
 
+---
+
+```groovy
+stage ('Login and push docker image') {
+    when { changeset "ic-webapp/releases.txt"}
+    agent any
+    environment {
+        DOCKERHUB_PASSWORD  = credentials('dockerhub')
+    }
+    steps {
+        script {
+        sh '''
+            echo "${DOCKERHUB_PASSWORD}" | docker login -u ${USER_NAME} --password-stdin;
+            docker push ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
+        '''
+        }
+    }
+}
+```
+
+---
+
+```groovy
+stage ('Deploy to prod with Ansible') {
+    steps {
+        withCredentials([
+            usernamePassword(credentialsId: 'ansible_user_credentials', usernameVariable: 'ansible_user', passwordVariable: 'ansible_user_pass'),
+            usernamePassword(credentialsId: 'pgadmin_credentials', usernameVariable: 'pgadmin_user', passwordVariable: 'pgadmin_pass'),
+            usernamePassword(credentialsId: 'pgsql_credentials', usernameVariable: 'pgsql_user', passwordVariable: 'pgsql_pass'),
+            string(credentialsId: 'ansible_sudo_pass', variable: 'ansible_sudo_pass')
+        ])
+        {
+            ansiblePlaybook (
+                disableHostKeyChecking: true,
+                installation: 'ansible',
+                inventory: 'ansible/prods.yml',
+                playbook: 'ansible/play.yml',
+                extras: '--extra-vars "NETWORK_NAME=network \
+                        IMAGE_TAG=${IMAGE_TAG} \
+                        ansible_user=${ansible_user} \
+                        ansible_ssh_pass=${ansible_user_pass} \
+                        ansible_sudo_pass=${ansible_sudo_pass} \
+                        PGADMIN_EMAIL=${pgadmin_user} \
+                        PGADMIN_PASS=${pgadmin_pass} \
+                        DB_USER=${pgsql_user} \
+                        DB_PASS=${pgsql_pass}"'
+            )
+        }
+    }
+}
+```
+
+---
+
+### Test final
+
+```groovy
+stage ('Test full deployment') {
+    steps {
+        sh '''
+            sleep 10;
+
+            curl -LI http://192.168.99.21 | grep "200";
+            curl -L http://192.168.99.21 | grep "IC GROUP";
+
+            curl -LI http://192.168.99.20:8081 | grep "200";
+            curl -L http://192.168.99.20:8081 | grep "Odoo";
+
+            curl -LI http://192.168.99.21:8082 | grep "200";
+            curl -L http://192.168.99.21:8082 | grep "pgAdmin 4";
+        '''
+    }
+}
+```
+
+---
+
+### Astuces
+
+- Commencer simplement
+- when { changeset "ic-webapp/releases.txt"}
+- Il est possible de rejouer un build à partir d'une étape, mais ça ne met pas à jour le code source
+- Créer un job manuel pour faire des tests
+- Ne tester qu'une seule étape à la fois
+- Exporter, versionner, importer les jobs
+
+---
+
+### TODO
+
+- Utiliser un master Jenkins et un ou plusieurs slaves
+- Finir d'implémenter les tests avec Trivy
+- Auto-merge sur main à la réussite du pipeline
+
+---
+
+### Retours
+
+- Ne pas utiliser des versions trop vieilles
 
 ---
 
