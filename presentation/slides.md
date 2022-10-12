@@ -357,7 +357,7 @@ spec:
 _header: 'Schéma des PVC et PV généré par longhorn'
  -->
 
-![bg h:50% w:50%](./images/k8s-graph-pvc.svg) ![bg h:50% w:50%](./images/k8s-graph-pv.svg)
+PVC : ![bg h:50% w:50%](./images/k8s-graph-pvc.svg) PV:  ![bg h:50% w:50%](./images/k8s-graph-pv.svg)
 
 ---
 
@@ -380,8 +380,76 @@ spec:
 
 ---
 
+```yaml
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+        env: prod
+    spec:
+      securityContext:
+        runAsUser: 5050
+        runAsGroup: 5050
+        fsGroup: 5050
+        fsGroupChangePolicy: "OnRootMismatch" 
+      volumes:
+        - name: pgadmin-config
+          configMap:
+            name: pgadmin-config
+        - name: pgadmin-data
+          persistentVolumeClaim:
+            claimName: data-pgadmin-claim
+```
+
 ---
 
+```yaml
+      containers:
+        - name: pgadmin
+#          securityContext:
+#            readOnlyRootFilesystem: true      
+          image: dpage/pgadmin4:6.14
+          env:
+            - name: PGADMIN_LISTEN_ADDRESS
+              value: 0.0.0.0
+            - name: PGADMIN_PORT
+              value: "80"
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: user@domain.com
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin
+                  key: pgadmin-password
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: pgadmin-config
+              mountPath: /pgadmin4/servers.json
+              subPath: servers.json
+              readOnly: true
+            - name: pgadmin-data
+              mountPath: /var/lib/pgadmin
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          resources: {}
+#            requests:
+#              memory: "300Mi"
+#              cpu: "100m"
+#            limits:
+#              memory: "300Mi"
+#              cpu: "200m"   
+```
+
+---
+
+![bg h:100% w:100%](./images/k8s-graph-deploy.svg)
+
+---
 - Services
   - ClusterIP
   - NodePort
