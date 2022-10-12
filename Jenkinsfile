@@ -166,7 +166,7 @@ pipeline {
                     docker rm ${CONTAINER_NAME} || true;
                     docker run -d --name ${CONTAINER_NAME} -p 9090:8080 ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
                     sleep 3;
-                    curl http://127.0.0.1:9090 | grep -q "IC GROUP";
+                    curl http://192.168.99.13:9090 | grep -q "IC GROUP";
                     docker stop ${CONTAINER_NAME};
                     docker rm ${CONTAINER_NAME};
                 '''
