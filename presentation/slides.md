@@ -622,7 +622,7 @@ Schéma complet
 git clone https://github.com/Romain-Revel/ajc-projet-final-2.git
 cd ajc-projet-final-2/manifests
 ```
-Vous pouvez personnalisé l'environnement en modifiant les manifests que ce soit pour les paramètres des conteneurs ou la configuration des services.
+Vous pouvez personnaliser l'environnement en modifiant les manifests que ce soit pour les paramètres des conteneurs ou la configuration des services.
 
 Une fois configurée, il suffit de faire :
 
