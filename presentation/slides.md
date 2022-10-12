@@ -335,10 +335,10 @@ spec:
 ---
 
 <!--
-_header: 'Schéma des PVC'
+_header: 'Schéma des PVC et PV généré par longhorn'
  -->
 
-![bg h:80% w:80%](./images/k8s-graph-pvc.svg)
+![bg h:50% w:50%](./images/k8s-graph-pvc.svg) ![bg h:50% w:50%](./images/k8s-graph-pv.svg)
 
 ---
 
