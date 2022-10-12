@@ -18,23 +18,22 @@ paginate: true
 
 ---
 
-### Création des Rôles Ansible
-
-Pour l'installation de docker dans les VMs nous avons choisi de passer par vagrant et pour des raisons de temps.
-Il faudrait par la suite passer par un rôle de ansible galaxy 
-https://galaxy.ansible.com/geerlingguy/docker
+#### Création des Rôles Ansible
 
 Déployer des conteneurs docker avec 2 rôles  : 
 
-- odoo_role : lance 2 conteneurs celui de odoo et celui de la base de donnée postgres
-- pgadmin_role :  lance le site vitrine ic-webapp et un conteneur pgadmin pour visualiser la base de donnée postgres de odoo
+- odoo_role : lance 1 conteneur **odoo** et 1 **postgres**
+- pgadmin_role :  lance le site vitrine **ic-webapp** et un conteneur **pgadmin**
 
-NB : Toutes les données sont variabilisées donc pourront être surchargée par ansible
+**NB :** Toutes les données sont variabilisées donc pourront être surchargée par ansible
 
+**NB :** Il faudrait par la suite passer par un rôle de ansible galaxy 
+    https://galaxy.ansible.com/geerlingguy/docker
 
 ---
 
-### Rôle Odoo
+#### Rôle Odoo
+
 Déploie 2 conteneurs avec le template docker-compose  :
 - Conteneur odoo
 - Conteneur postgres
@@ -47,7 +46,6 @@ templates/docker-compose.yml.j2
 # Template docker-compose for odoo
 version: '3.3'
 services:
-
     {{ SERVICE_POSTGRES }}:
         environment:
             - 'POSTGRES_USER={{ DB_USER }}'
@@ -61,6 +59,11 @@ services:
         image: 'postgres:13'
         ports:
             - '{{ POSTGRES_PORT }}:5432'
+```
+
+---
+
+```yaml
     {{ SERVICE_ODOO }}:
         depends_on:
             - {{ SERVICE_POSTGRES }}
@@ -76,7 +79,6 @@ services:
             - 'PASSWORD={{ DB_PASS }}'
             - 'HOST={{ DB_NAME }}'
         image: odoo:13
-
 volumes:
     odoo-web-data:
     pgdata:
@@ -129,9 +131,7 @@ tasks/main.yml
 
 ---
 
-### Rôle PgAdmin
-
----
+#### Rôle PgAdmin
 
 Déploie deux conteneurs via les templates docker-compose et servers :
 
@@ -159,7 +159,6 @@ services:
         volumes:
             - /home/{{ ansible_user }}/files/servers.json:/pgadmin4/servers.json
             - 'pgadmin_data:/var/lib/pgadmin'
-
     {{ SERVICE_ICWEBAPP }}:
         container_name: {{ CONTAINER_NAME_ICWEBAPP }}
         ports:
@@ -170,20 +169,18 @@ services:
         image: '{{ IMAGE_NAME }}:{{ IMAGE_TAG }}'
         networks:
             - {{ NETWORK_NAME }}
-
 volumes:
     pgadmin_data:
 networks:
     {{ NETWORK_NAME }}:
       driver: bridge
- ```     
+ ```
 
 ---
 
 servers.json.j2
 
 ```json
-
 {
     "Servers": {
         "1": {
@@ -198,6 +195,7 @@ servers.json.j2
     }
 }
 ```
+**ATTENTION :** Le port de Postgre **DOIT** être **numérique**
 
 ---
 
@@ -229,8 +227,6 @@ CONTAINER_NAME_ICWEBAPP: "ic-webapp"
 tasks/main.yml
 
 ```yaml
-# tasks file for pgadmin_role
-
 - name: creation repertoire files
   file:
     path: "/home/{{ ansible_user }}/files/"
@@ -253,15 +249,15 @@ tasks/main.yml
 ```
 ---
 
-### Le Playbook Ansible
+#### Le Playbook Ansible
 
----
 Un playbook Ansible est un modèle de tâches d'automatisation. Les playbooks Ansible sont exécutés sur un ensemble, un groupe ou une classification d'hôtes, qui forment ensemble un inventaire.
 
 Source: https://www.redhat.com/fr/topics/automation/what-is-an-ansible-playbook
----
-play.yml
 
+---
+
+play.yml
 
 ```yaml
 # Notre playbook 
@@ -292,6 +288,7 @@ all:
 ```
 
 ---
+
 La structure de notre répertoire Ansible
 
 ```yaml
@@ -303,6 +300,14 @@ La structure de notre répertoire Ansible
 │   └── docker-pgadmin-icwebapp.yml
 ├── play.yml
 ├── prods.yml
+└── roles
+    ├── odoo_role
+    └── pgadmin_role
+```
+
+---
+
+```yaml
 └── roles
     ├── odoo_role
     │   ├── defaults
@@ -321,25 +326,4 @@ La structure de notre répertoire Ansible
     │   │   └── test.yml
     │   └── vars
     │       └── main.yml
-    └── pgadmin_role
-        ├── defaults
-        │   └── main.yml
-        ├── handlers
-        │   └── main.yml
-        ├── meta
-        │   └── main.yml
-        ├── README.md
-        ├── tasks
-        │   └── main.yml
-        ├── templates
-        │   ├── docker-compose.yml.j2
-        │   └── servers.json.j2
-        ├── tests
-        │   ├── inventory
-        │   └── test.yml
-        └── vars
-            └── main.yml
 ```
----
-
-## Conclusion
