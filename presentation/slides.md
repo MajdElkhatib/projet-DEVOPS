@@ -244,6 +244,116 @@ docker push sh0t1m3/${image}:1.0
 ---
 
 ### Déploiement avec Kubernetes
+- Installation de longhorn (avec helm)
+- Création des manifests
+- Application des manifests
+---
+
+#### Helm
+
+Kubernetes package manager : https://helm.sh/
+
+```bash
+#!/bin/bash
+# Helm installation
+HELM_PATH="$(which helm)"
+
+if [ "${HELM_PATH}" == "" ]; then
+        # Get HELM
+        curl https://get.helm.sh/helm-v3.10.0-linux-amd64.tar.gz -o helm-v3.10.0-linux-amd64.tar.gz
+        tar xfz helm-v3.10.0-linux-amd64.tar.gz
+        sudo mv linux-amd64/helm /usr/local/bin && chmod +x /usr/local/bin/helm
+        rm -Rf tar xfz helm-v3.10.0-linux-amd64.tar.gz linux-amd64/
+        HELM_PATH=/usr/local/bin/helm
+fi
+```
+
+
+---
+#### Longhorn
+Cloud native distributed block storage for Kubernetes
+
+```bash
+# Longhorn installation with helm
+su vagrant -c "${HELM_PATH} repo add longhorn https://charts.longhorn.io"
+if [ $? -ne 0 ]; then
+        echo "Impossible d'ajouter le repo à helm"
+        exit 1
+fi
+
+su vagrant -c "${HELM_PATH} repo update"
+
+su vagrant -c "${HELM_PATH} install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace"
+if [ $? -ne 0 ]; then
+        echo "Impossible d'installer longhorn"
+        exit 1
+fi
+```
+
+---
+
+#### Architecture du namespace
+
+![h: 80% w:80%](./images/schema-kubernetes.png)
+
+
+---
+
+#### Les manifests
+
+- Namespace
+  ```bash
+  kubectl create ns icgroup
+  ```
+
+- Secrets
+  La génération des secrets doit etre manuelle pour éviter un stockage du mot de passe.
+
+  ```bash
+  kubectl create secret generic  odoo-pgsql-password --from-literal=odoo=YOUR_PASSWORD -n icgroup
+  ```
+
+---
+
+- PVCs (pour les applications où cela est nécessaire)
+  - Storageclass Longhorn
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-postgres-claim
+  namespace: icgroup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "longhorn"
+  resources:
+    requests:
+      storage: 2Gi
+```
+---
+
+<!--
+_header: 'Schéma des PVC'
+ -->
+
+![bg h:80% w:80%](./images/k8s-graph-pvc.svg)
+
+---
+
+- Deploiements
+  - Réplicaset
+  - Label : env=prod et app=...
+  - security-context
+
+---
+
+- Services
+  - ClusterIP
+  - NodePort
+  - Loadbalancing(round-robin)
+
 
 ---
 
