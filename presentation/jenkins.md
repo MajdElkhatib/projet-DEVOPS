@@ -19,7 +19,7 @@ paginate: true
 
 ---
 
-## Serveurs 2 et 3
+Serveurs 2 et 3 - boucle
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -60,15 +60,15 @@ end
 
 ---
 
+## Serveur 1 - Script d'installation
+
 ```bash
 #!/bin/bash
 # Script d'installation de Jenkins fourni par Dirane
 yum -y update
 yum -y install epel-release
-
 # install ansible
 yum -y install ansible
-
 # retrieve ansible code
 yum -y install git
 git clone https://github.com/diranetafen/cursus-devops.git
@@ -78,18 +78,26 @@ ansible-playbook install_docker.yml
 sudo usermod -aG docker vagrant
 cd ../jenkins
 /usr/local/bin/docker-compose up -d
-echo "For this Stack, you will use $(ip -f inet addr show enp0s8 | sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
+echo "For this Stack, you will use $(ip -f inet addr show enp0s8 | \
+sed -En -e 's/.*inet ([0-9.]+).*/\1/p') IP Address"
 ```
 
 ---
 
-## Serveur 1 - Installation
+## Serveur 1 - Interface
 
-Installation chacun de son côté, en ne partageant que:
-- Vagrantfile
-- Jenkinsfile
+---
 
--> pas optimal
+## Serveur 1 - Inconvénients
+
+- Version datée
+- Interface web laide et non ergonomique
+- Installation ne partageant pas:
+    - Comptes
+    - Plugins
+    - Jobs
+    - Secrets
+    - Configuration globale
 
 ---
 
@@ -122,23 +130,17 @@ COPY jenkins.casc.yml /var/jenkins_home/jenkins.casc.yml
 
 ---
 
-## Plugins Jenkins
+## Plugins Jenkins par défaut
 
 ```text
-ansible:latest
 antisamy-markup-formatter:latest
-authorize-project:latest
 build-timeout:latest
 cloudbees-folder:latest
-configuration-as-code:latest
 credentials-binding:latest
-docker-plugin:latest
-docker-workflow:latest
 email-ext:latest
 git:latest
 github-branch-source:latest
 mailer:latest
-matrix-auth:latest
 pam-auth:latest
 pipeline-github-lib:latest
 pipeline-stage-view:latest
@@ -146,6 +148,19 @@ ssh-slaves:latest
 timestamper:latest
 workflow-aggregator:latest
 ws-cleanup:latest
+```
+
+---
+
+## Plugins Jenkins supplémentaires
+
+```text
+ansible:latest
+authorize-project:latest
+configuration-as-code:latest
+docker-plugin:latest
+docker-workflow:latest
+matrix-auth:latest
 ```
 
 ---
@@ -277,9 +292,10 @@ Image jobs ?
 ## Configuration de Jenkins
 
 Plugin [Configuration as code](https://plugins.jenkins.io/configuration-as-code/)
-- Compte admin
+- Compte(s) admin
 - URL
-- 
+- Credentials
+- Security (bonus)
 
 ---
 
@@ -336,11 +352,46 @@ credentials:
 
 ---
 
+```groovy
+jenkins:
+  //...
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "USER:Overall/Administer:admin"
+        - "GROUP:Overall/Read:authenticated"
+  remotingSecurity:
+      enabled: true
 
+security:
+  queueItemAuthenticator:
+    authenticators:
+    - global:
+        strategy: triggeringUsersAuthorizationStrategy
+```
 
 ---
 
+## Pipeline(s)
 
+```groovy
+// Jenkinsfile
+pipeline {
+
+    environment {
+        IMAGE_NAME = "ic-webapp"
+        IMAGE_TAG = "${sh(returnStdout: true, script: 'cat ic-webapp/releases.txt |grep version | cut -d\\: -f2|xargs')}"
+        CONTAINER_NAME = "ic-webapp"
+        USER_NAME = "sh0t1m3"
+    }
+
+    agent any
+
+    stages {
+        // stage 1...
+    }
+}
+```
 
 ---
 
