@@ -79,7 +79,7 @@ Source: https://www.votre-it-facile.fr/travail-collaboratif-et-travail-cooperati
 
 ---
 
-## Partie 1
+## Approche Kubernetes
 
 ---
 
@@ -455,7 +455,114 @@ spec:
   - NodePort
   - Loadbalancing(round-robin)
 
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+     env: prod
+     app: ic-webapp
+  name: ic-webapp-service
+  namespace: icgroup
+spec:
+  ports:
+  - port: 25000
+    protocol: TCP
+    targetPort: 8080
+    nodePort: 31500
+  selector:
+    env: prod
+    app: ic-webapp
+  type: NodePort
+status:
+  loadBalancer: {}
+```
 
+---
+
+![bg h:100% w:100%](./images/k8s-graph-svc.svg)
+
+---
+
+<!--
+_header: 'Schéma complet'
+ -->
+
+![bg h:100% w:100%](./images/k8s-graph-all.svg)
+
+
+---
+
+### La validation des fichiers
+
+  - hooks de pre-commit
+
+---
+
+  - shellcheck pour les scripts d'installation
+
+```bash
+shellcheck $(find . -type f -name "*.sh")
+```
+
+```log
+In ./infrastructure/docker/install_docker.sh line 14:
+if [[ !(-z "$ENABLE_ZSH")  &&  ($ENABLE_ZSH == "true") ]]
+       ^-- SC1035: You are missing a required space here.
+
+
+In ./infrastructure/docker/install_docker.sh line 19:
+    su - vagrant  -c  'echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+                      ^-- SC2016: Expressions don't expand in single quotes, use double quotes for that.
+
+
+In ./infrastructure/minikube/install_minikube.sh line 15:
+sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+                                                                        ^-- SC2046: Quote this to prevent word splitting.
+                                                                        ^-- SC2006: Use $(..) instead of legacy `..`.
+
+
+In ./infrastructure/minikube/install_minikube.sh line 18:
+sudo echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+              ^-- SC2024: sudo doesn't affect redirects. Use ..| sudo tee file
+
+
+In ./infrastructure/minikube/install_minikube.sh line 22:
+echo 'source <(kubectl completion bash)' >> ~vagrant/.bashrc
+^-- SC2129: Consider using { cmd1; cmd2; } >> file instead of individual redirects.
+
+
+In ./infrastructure/minikube/install_minikube.sh line 26:
+if [[ !(-z "$ENABLE_ZSH")  &&  ($ENABLE_ZSH == "true") ]]
+   ^-- SC2039: In POSIX sh, [[ ]] is not supported.
+       ^-- SC1035: You are missing a required space here.
+
+
+In ./infrastructure/minikube/install_minikube.sh line 31:
+    su - vagrant  -c  'echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+                      ^-- SC2016: Expressions don't expand in single quotes, use double quotes for that.
+```
+---
+
+  - kube-linter pour les manifests
+```bash
+docker run --rm -v /home/vagrant/ajc-projet-final/manifests/:/dir stackrox/kube-linter lint /dir
+```
+
+---
+  - hadolint pour le Dockerfile
+
+
+```bash
+docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
+```
+
+```log
+-:7 DL3013 warning: Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
+-:7 DL3018 warning: Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
+-:7 DL3042 warning: Avoid use of cache directory with pip. Use `pip install --no-cache-dir <package>`
+```
 ---
 
 ## Partie 2
