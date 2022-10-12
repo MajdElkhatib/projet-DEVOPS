@@ -478,7 +478,7 @@ spec:
         runAsUser: 5050
         runAsGroup: 5050
         fsGroup: 5050
-        fsGroupChangePolicy: "OnRootMismatch" 
+        fsGroupChangePolicy: "OnRootMismatch"
       volumes:
         - name: pgadmin-config
           configMap:
@@ -494,7 +494,7 @@ spec:
       containers:
         - name: pgadmin
 #          securityContext:
-#            readOnlyRootFilesystem: true      
+#            readOnlyRootFilesystem: true
           image: dpage/pgadmin4:6.14
           env:
             - name: PGADMIN_LISTEN_ADDRESS
@@ -530,7 +530,7 @@ spec:
 #              cpu: "100m"
 #            limits:
 #              memory: "300Mi"
-#              cpu: "200m"   
+#              cpu: "200m"
 ```
 
 ---
@@ -628,7 +628,7 @@ Une fois configurée, il suffit de faire :
 ./install_app.sh
 ```
 
-Ce script demandera de rentrer les mots de passes qui devront être utilisés. Celui de la base de données ```postgres``` et de l'utilisateur ```pgadmin``` 
+Ce script demandera de rentrer les mots de passes qui devront être utilisés. Celui de la base de données ```postgres``` et de l'utilisateur ```pgadmin```
 
 ---
 
@@ -724,14 +724,14 @@ Mise en place d’un pipeline CI/CD
 <style scoped>section { font-size: 2em; }</style>
 #### Création des Rôles Ansible
 
-Déployer des conteneurs docker avec 2 rôles  : 
+Déployer des conteneurs docker avec 2 rôles  :
 
 - odoo_role : lance 1 conteneur **odoo** et 1 **postgres**
 - pgadmin_role :  lance le site vitrine **ic-webapp** et un conteneur **pgadmin**
 
 **NB :** Toutes les données sont variabilisées donc pourront être surchargée par ansible
 
-**NB :** Il faudrait par la suite passer par un rôle de ansible galaxy 
+**NB :** Il faudrait par la suite passer par un rôle de ansible galaxy
     https://galaxy.ansible.com/geerlingguy/docker
 
 ---
@@ -965,7 +965,7 @@ Source: https://www.redhat.com/fr/topics/automation/what-is-an-ansible-playbook
 play.yml
 
 ```yaml
-# Notre playbook 
+# Notre playbook
 - name: "installation de odoo"
   hosts: prod-odoo
   roles:
@@ -974,7 +974,7 @@ play.yml
   hosts: prod-pgadmin
   roles:
     - role: pgadmin_role
-```    
+```
 
 ---
 
@@ -1074,7 +1074,51 @@ Vagrant.configure("2") do |config|
                         v.name = "docker-#{val}"
                 #...
 ```
+---
+### Modification du fichier releases.txt
 
+Il est demandé de pouvoir reconstruire l'image de l'application web vitrine lors de la modification du fichier releases.txt
+
+```
+ODOO_URL: http://192.168.99.20:8081
+PGADMIN_URL: http://192.168.99.21:8082
+version: 1.2
+```
+
+Ce fichier alimentera le script de lancement de l'application web vitrine.
+(Il faudrait le tester dans la pipeline pour vérifier que les paires champs:valeur soient cohérentes)
+
+---
+### Modification du dockerfile
+
+```dockerfile
+FROM alpine:3.6
+
+ENV ODOO_URL=""
+ENV PGADMIN_URL=""
+
+# Install python and pip
+RUN apk add --no-cache --update python3 py3-pip bash && \
+        # Install dependencies
+        pip3 install Flask && \
+        # Add a Group and user icwebapp
+        addgroup -S icwebapp && \
+        adduser -S icwebapp -G icwebapp
+
+# Add our code
+COPY --chown=icwebapp:icwebapp ic-webapp /opt/ic-webapp/
+COPY --chown=icwebapp:icwebapp releases.txt /opt/ic-webapp/releases.txt
+
+USER icwebapp
+# Create the entry point script
+RUN echo -e "#!/bin/bash\nexport ODOO_URL=$(cat /opt/ic-webapp/releases.txt | grep ODOO_URL |sed -e 's/^ODOO_URL: \(.*\)$/\1/') && export PGADMIN_URL=$(cat /opt/ic-webapp/releases.txt | grep PGADMIN_URL |sed -e 's/^PGADMIN_URL: \(.*\)$/\1/') && python3 app.py" > /opt/ic-webapp/start.sh \
+    && chmod +x /opt/ic-webapp/start.sh
+
+WORKDIR /opt/ic-webapp
+EXPOSE 8080
+
+ENTRYPOINT [ "./start.sh" ]
+```
 ---
 
 ## Jenkins - Script d'installation
@@ -1745,7 +1789,7 @@ stage("Trivy scan") {
 
 ## Conclusion
 
-- Approche kubernetes : 
+- Approche kubernetes :
   - Avantages
   - Inconvénients
 - Approche pipeline CI/CD avec ansible et docker

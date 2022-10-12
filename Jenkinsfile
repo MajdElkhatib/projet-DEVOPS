@@ -140,12 +140,12 @@ pipeline {
         }
 
         stage ('Build docker image') {
-            when { 
+            when {
                 anyOf{
                     changeset "ic-webapp/releases.txt"
                     changeset "**/Dockerfile"
                 }
-                
+
             }
             steps{
                 script{
@@ -156,7 +156,7 @@ pipeline {
                 }
             }
         }
- 
+
         stage ('Test docker image') {
             when { changeset "ic-webapp/releases.txt"}
             steps{
