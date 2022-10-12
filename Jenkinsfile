@@ -117,14 +117,6 @@ pipeline {
             }
         }
 
-        stage('Trivy Scan Project') {
-            agent {
-                docker {
-                    image 'aquasec/trivy:latest'
-                }
-            }
-        }
-
         stage ('Build docker image') {
             when { changeset "ic-webapp/releases.txt" }
             steps{
@@ -167,60 +159,6 @@ pipeline {
                     docker push ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG};
                 '''
                 }
-            }
-        }
-
-        // https://vijetareigns.medium.com/securing-container-image-using-trivy-in-cicd-pipeline-fe445e18fb9a
-        stage('Trivy Scan Image') {
-            agent {
-                docker {
-                    image 'aquasec/trivy:latest'
-                }
-            }
-            steps {
-                script {
-                    sh """
-                        trivy image --format template --template \"@/home/vijeta1/contrib/html.tpl\" --output trivy_report.html sh0t1m3/ic-webapp
-                    """
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: "trivy_report.html", fingerprint: true
-                        
-                    publishHTML (target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: '.',
-                        reportFiles: 'trivy_report.html',
-                        reportName: 'Trivy Scan',
-                    ])
-                }
-            }
-        }
-
-        stage('Scan') {
-            steps {
-                // Install trivy
-                sh 'curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.18.3'
-                sh 'curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl > html.tpl'
-
-                // Scan all vuln levels
-                sh 'mkdir -p reports'
-                sh 'trivy filesystem --ignore-unfixed --vuln-type os,library --format template --template "@html.tpl" -o reports/nodjs-scan.html ./nodejs'
-                publishHTML target : [
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'reports',
-                    reportFiles: 'nodjs-scan.html',
-                    reportName: 'Trivy Scan',
-                    reportTitles: 'Trivy Scan'
-                ]
-
-                // Scan again and fail on CRITICAL vulns
-                sh 'trivy filesystem --ignore-unfixed --vuln-type os,library --exit-code 1 --severity CRITICAL ./nodejs'
             }
         }
 
