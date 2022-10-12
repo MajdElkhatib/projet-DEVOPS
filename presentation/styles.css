@@ -12,15 +12,24 @@
 
 
 /* */
-section.class {
-    font-size: 20px
+section.toto {
+    font-size: 30px
 }
 
+/* */
 section::after {
     width: 250px;
     content: 'Slide ' attr(data-marpit-pagination) ' sur ' attr(data-marpit-pagination-total);
 }
 
+section * {
+    width: 100%;
+    text-align: left;
+}
+
+section pre {
+    white-space: pre-wrap;
+}
 h1,
 h2,
 h3,
@@ -37,6 +46,7 @@ h1 {
 
 h2 {
     font-size: 1.7em;
+    text-align: center;
 }
 
 h3 {
@@ -69,6 +79,11 @@ section.table_of_content {
     font-size: 0.8em;
     text-align: left;
 }
+
+/* section img,a {
+    display: inline-block;
+    text-align: center;
+} */
 
 section > ol {
     columns: 2;
