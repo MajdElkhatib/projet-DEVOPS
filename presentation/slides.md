@@ -311,6 +311,8 @@ fi
 
   ```bash
   kubectl create secret generic  odoo-pgsql-password --from-literal=odoo=YOUR_PASSWORD -n icgroup
+
+  kubectl create secret generic  pgadmin --from-literal=pgadmin-password=YOUR_PASSWORD -n icgroup --dry-run=client -o yaml >10-secret_pgadmin.yaml
   ```
 ---
 
@@ -446,8 +448,34 @@ spec:
 ```
 
 ---
+Le ConfigMap pour le fichier servers.json
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: pgadmin-config
+ namespace: icgroup
+data:
+ servers.json: |
+    {
+        "Servers": {
+                "1": {
+                "Name": "Minimally Defined Server",
+                "Group": "Server Group 1",
+                "Port": 5432,
+                "Username": "odoo",
+                "Host": "odoo-postgres",
+                "SSLMode": "prefer",
+                "MaintenanceDB": "postgres"
+                }
+        }
+    }
+```
 
-![bg h:100% w:100%](./images/k8s-graph-deploy.svg)
+---
+<h1><span style="display:block;text-align:center">Liste des déploiements</span></h1>
+
+<span style="display:block;text-align:center">![h:100% w:100%](./images/k8s-graph-deploy.svg)</span>
 
 ---
 - Services
@@ -480,16 +508,15 @@ status:
 ```
 
 ---
+<h1><span style="display:block;text-align:center">Liste des services</span></h1>
 
-![bg h:100% w:100%](./images/k8s-graph-svc.svg)
+<span style="display:block;text-align:center">![h:90% w:90%](./images/k8s-graph-svc.svg)</span>
 
 ---
 
-<!--
-_header: 'Schéma complet'
- -->
+<h1><span style="display:block;text-align:center">Schéma complet</span></h1>
 
-![bg h:100% w:100%](./images/k8s-graph-all.svg)
+![h:90% w:90%](./images/k8s-graph-all.svg)
 
 
 ---
