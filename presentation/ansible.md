@@ -20,6 +20,10 @@ paginate: true
 
 ### Création des Rôles Ansible
 
+Pour l'installation de docker dans les VMs nous avons choisi de passer par vagrant et pour des raisons de temps.
+Il faudrait par la suite passer par un rôle de ansible galaxy 
+https://galaxy.ansible.com/geerlingguy/docker
+
 Déployer des conteneurs docker avec 2 rôles  : 
 
 - odoo_role : lance 2 conteneurs celui de odoo et celui de la base de donnée postgres
