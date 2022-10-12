@@ -536,7 +536,31 @@ stage ('Login and push docker image') {
 
 ---
 
+![bg w:100%](./images/Jenkins-skip-docker.png)
+
+---
+
+![bg w:100%](./images/Jenkins-run-docker-after-release-change.png)
+
+---
+
+![bg w:100%](./images/docker-hub-1.0.png)
+
+---
+
+![bg w:100%](./images/docker-hub-1.2.png)
+
+---
+
 ### Déploiement avec Ansible
+
+Credentials à déclarer dans Jenkins pour déployer par Ansible
+
+---
+
+![bg w:100%](./images/Jenkins-credentials.png)
+
+---
 
 ```groovy
 stage ('Deploy to prod with Ansible') {
@@ -595,7 +619,7 @@ stage ('Test full deployment') {
 
 ### Troubleshooting
 
-- Attention aux redirections
+- Attention aux redirections HTTP
 - Attention au délai entre la fin d'Ansible et la disponibilité du site web
 
 ---
@@ -606,12 +630,13 @@ Scanner de vulnérabilité
 - code source (fs, repo)
 - dépendances
 - images conteneur
+- ...
 
 https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-trivy
 
 ---
 
-### Webhooks
+### Déclenchement automatique
 
 - Webhook Github
 
