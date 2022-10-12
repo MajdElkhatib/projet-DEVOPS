@@ -1,15 +1,10 @@
 ---
 marp: true
 theme: ajc
-header: 'PROJET FINAL DEVOPS'
+header: ''
 footer: 'Groupe 3'
 paginate: true
 ---
-<style>
-.toto {
-  font-size: 10px
-}
-</style>
 # PROJET FINAL DEVOPS
 
 **Groupe 3**
@@ -101,12 +96,12 @@ pied un site **web vitrine** devant permettre d’accéder à ses 02 application
 
 ### Analyse du sujet
 
-1)
-  * Conteneurisation de la web app python (Flask) avec **Docker**
-  * Déploiement des 3 produits sur un cluster **Kubernetes**
+#### Partie 1
+* Conteneurisation de la web app python (Flask) avec **Docker**
+* Déploiement des 3 produits sur un cluster **Kubernetes**
 
-2)
-  * Mise en place d'un pipeline CI/CD à l'aide de **Jenkins** et de **Ansible**
+#### Partie 2
+* Mise en place d'un pipeline CI/CD à l'aide de **Jenkins** et de **Ansible**
 
 ---
 
@@ -137,7 +132,9 @@ Source: https://www.votre-it-facile.fr/travail-collaboratif-et-travail-cooperati
 
 ---
 
-## Approche Kubernetes
+## Partie 1
+
+Approche Kubernetes
 
 ---
 
@@ -152,10 +149,10 @@ Source: https://www.votre-it-facile.fr/travail-collaboratif-et-travail-cooperati
 - Postes: **Windows 10** et **Linux Mint** -> complications
 
 ---
-
+<style scoped>section pre,p { font-size: 0.6em; }</style>
 ### Vagrant
-Utilisation d'un fichier Vagrant fourni par Dirane lors de notre formation.
-Nous l'avons adapté pour répondre à notre besoin.
+
+Utilisation d'un fichier Vagrant fourni par **Dirane** lors de notre formation, adapté pour répondre à notre besoin.
 
 ```ruby
 # Version initiale fonctionnant uniquement sous Windows
@@ -178,7 +175,7 @@ end
 ```
 
 ---
-
+<style scoped>section pre,p { font-size: 0.6em; }</style>
 Comme nous utilisons deux environnements différents, nous avons fait un module dans le fichier vagrant (en ruby). Ce module sera utilisé pour tous les fichiers vagrant qui suivront.
 
 ```ruby
@@ -201,27 +198,30 @@ end
 ```
 
 ---
+<style scoped>
+section pre,p { white-space: pre-wrap;
 
+}</style>
 Voici comment utiliser le module.
 
 ```ruby
-    # Ajout
-    docker.vm.box = "geerlingguy/centos7"
-    if OS.linux?
-        # Sous linux, il FAUT préciser le nom du réseau hôte
-        # https://www.vagrantup.com/docs/providers/virtualbox/networking
-        # Dans Virtualbox > Fichier > Gestionnaire de réseau hôte (CTRL + H):
-        # - Vérifier la présence de vboxnet0, sinon le créer
-        # - Vérifier l'adresse IPv4 et le masque, sinon les modifier (à faire 2 fois pour être pris en compte)
-        #
-        # Vérifier avec "ip -a" le nom, l'IP et le masque
-        docker.vm.network "private_network",  type: "static", ip: "192.168.99.11", name: "vboxnet0"
-    elsif OS.windows?
-        docker.vm.network "private_network",  type: "static", ip: "192.168.99.11"
-    else
-        puts 'OS not managed'
-    end
-    # ...
+# Ajout
+docker.vm.box = "geerlingguy/centos7"
+if OS.linux?
+    # Sous linux, il FAUT préciser le nom du réseau hôte
+    # https://www.vagrantup.com/docs/providers/virtualbox/networking
+    # Dans Virtualbox > Fichier > Gestionnaire de réseau hôte (CTRL + H):
+    # - Vérifier la présence de vboxnet0, sinon le créer
+    # - Vérifier l'adresse IPv4 et le masque, sinon les modifier (à faire 2 fois pour être pris en compte)
+    #
+    # Vérifier avec "ip -a" le nom, l'IP et le masque
+    docker.vm.network "private_network",  type: "static", ip: "192.168.99.11", name: "vboxnet0"
+elsif OS.windows?
+    docker.vm.network "private_network",  type: "static", ip: "192.168.99.11"
+else
+    puts 'OS not managed'
+end
+# ...
 ```
 
 ---
@@ -396,24 +396,25 @@ fi
 - Pré-génération des manifestes:
 
 ---
-<!-- _class: toto -->
+<style scoped>section blockquote { font-size: 40px;white-space: pre-wrap }</style>
 
 Trame du template container dans le deployment
 ```bash
-kubectl run --image=postgres:13 pod pgsql -n icgroup -l env=prod -l
-app=odoo-pgsql --env POSTGRES_DB=postgres --env POSTGRES_USER=odoo
---port=5432 --dry-run=client -o yaml
+kubectl run --image=postgres:13 pod pgsql -n icgroup -l \
+env=prod -l app=odoo-pgsql --env POSTGRES_DB=postgres \
+--env POSTGRES_USER=odoo --port=5432 --dry-run=client -o yaml
 ```
 
 Trame du deployment
 ```bash
-kubectl create deploy bdd-odoo --image postgres:13 -n icgroup
+kubectl create deploy bdd-odoo --image postgres:13 -n icgroup \
 --port=5432 --replicas=1 --dry-run=client -o yaml
 ```
 
 Trame du service
 ```bash
-kubectl expose deploy bdd-odoo --port=5433 --type=ClusterIP --target-port=5432 --name=service-bdd -n icgroup --dry-run=client -o yaml
+kubectl expose deploy bdd-odoo --port=5433 --type=ClusterIP \
+--target-port=5432 --name=service-bdd -n icgroup --dry-run=client -o yaml
 ```
 
 ---
@@ -511,6 +512,7 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+
           volumeMounts:
             - name: pgadmin-config
               mountPath: /pgadmin4/servers.json
@@ -532,7 +534,7 @@ spec:
 ```
 
 ---
-
+<style scoped>section { font-size: 2em; }</style>
 Le ConfigMap pour le fichier servers.json
 ```yaml
 apiVersion: v1
@@ -609,7 +611,7 @@ Schéma complet
 ![bg w:80%](./images/k8s-graph-all.svg)
 
 ---
-
+<style scoped>section { font-size: 2em; }</style>
 ### Procédure de déploiement
 
 - Kubernetes existant
@@ -659,7 +661,6 @@ In ./infrastructure/docker/install_docker.sh line 14:
 if [[ !(-z "$ENABLE_ZSH")  &&  ($ENABLE_ZSH == "true") ]]
        ^-- SC1035: You are missing a required space here.
 
-
 In ./infrastructure/docker/install_docker.sh line 19:
     su - vagrant  -c  'echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
                       ^-- SC2016: Expressions don't expand in single quotes, use double quotes for that.
@@ -691,17 +692,15 @@ In ./infrastructure/minikube/install_minikube.sh line 31:
     su - vagrant  -c  'echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
                       ^-- SC2016: Expressions don't expand in single quotes, use double quotes for that.
 ```
+
 ---
 
-  - kube-linter pour les manifests
+- kube-linter pour les manifests
 ```bash
 docker run --rm -v /home/vagrant/ajc-projet-final/manifests/:/dir stackrox/kube-linter lint /dir
 ```
 
----
-  - hadolint pour le Dockerfile
-
-
+- hadolint pour le Dockerfile
 ```bash
 docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
 ```
@@ -715,35 +714,14 @@ docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
 
 ## Partie 2
 
----
-### Mise en place d’un pipeline CI/CD
+Mise en place d’un pipeline CI/CD
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 ---
 
 ### Ansible
 
 ---
-
-<<<<<<< HEAD
-
-
-### Création des Rôles Ansible
-
-Déployer des conteneurs docker avec 2 rôles : 
-
-- odoo_role : lance 2 conteneurs celui de odoo et celui de la base de donnée postgres
-- pgadmin_role :  lance le site vitrine ic-webapp et un conteneur pgadmin pour visualiser la base de donnée postgres de odoo
-
----
-
-### Rôle Odoo
-Déploye 2 conteneurs avec le template docker-compose:
-=======
+<style scoped>section { font-size: 2em; }</style>
 #### Création des Rôles Ansible
 
 Déployer des conteneurs docker avec 2 rôles  : 
@@ -761,7 +739,6 @@ Déployer des conteneurs docker avec 2 rôles  :
 #### Rôle Odoo
 
 Déploie 2 conteneurs avec le template docker-compose  :
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 - Conteneur odoo
 - Conteneur postgres
 
@@ -769,17 +746,10 @@ Déploie 2 conteneurs avec le template docker-compose  :
 
 templates/docker-compose.yml.j2
 
-<<<<<<< HEAD
-```bash
-
-services:
-
-=======
 ```yaml
 # Template docker-compose for odoo
 version: '3.3'
 services:
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
     {{ SERVICE_POSTGRES }}:
         environment:
             - 'POSTGRES_USER={{ DB_USER }}'
@@ -793,14 +763,11 @@ services:
         image: 'postgres:13'
         ports:
             - '{{ POSTGRES_PORT }}:5432'
-<<<<<<< HEAD
-=======
 ```
 
 ---
 
 ```yaml
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
     {{ SERVICE_ODOO }}:
         depends_on:
             - {{ SERVICE_POSTGRES }}
@@ -816,10 +783,6 @@ services:
             - 'PASSWORD={{ DB_PASS }}'
             - 'HOST={{ DB_NAME }}'
         image: odoo:13
-<<<<<<< HEAD
-
-=======
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 volumes:
     odoo-web-data:
     pgdata:
@@ -829,16 +792,7 @@ networks:
 ```
 
 ---
-<<<<<<< HEAD
 
-templates/docker-compose.yml.j2
-
-
----
-
-defaults/main.yml
-
-=======
 defaults/main.yml
 
 ``` yaml
@@ -858,20 +812,10 @@ CONTAINER_NAME_POSTGRES: "postgres"
 CONTAINER_NAME_ODOO: "odoo"
 MOUNT_POINT_POSTGRES: "/var/lib/postgresql/data"
 ```
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 ---
 
 tasks/main.yml
 
-<<<<<<< HEAD
----
-
-### Rôle PgAdmin
-
----
-
-Déploye deux conteneurs via le template docker-compose :
-=======
 ```yaml
 # tasks file for odoo_role
 
@@ -895,17 +839,14 @@ Déploye deux conteneurs via le template docker-compose :
 #### Rôle PgAdmin
 
 Déploie deux conteneurs via les templates docker-compose et servers :
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 
 - pgadmin
 - ic-webapp
 
 ----
-
+<style scoped>section { font-size: 1.5em; }</style>
 templates/docker-compose.yml.j2
 
-<<<<<<< HEAD
-=======
 ```yaml
 # Template docker-compose for pgadmin and ic-webapp
 version: '3.3'
@@ -960,14 +901,11 @@ servers.json.j2
 }
 ```
 **ATTENTION :** Le port de Postgre **DOIT** être **numérique**
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 
 ---
 
 defaults/main.yml
 
-<<<<<<< HEAD
-=======
 ```yaml
 # defaults file for pgadmin_role
 PGADMIN_EMAIL: "user@domain.com"
@@ -989,15 +927,10 @@ NETWORK_NAME: "ic_network"
 CONTAINER_NAME_PGADMIN: "pgadmin"
 CONTAINER_NAME_ICWEBAPP: "ic-webapp"
 ```
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 ---
 
 tasks/main.yml
 
-<<<<<<< HEAD
----
-
-=======
 ```yaml
 - name: creation repertoire files
   file:
@@ -1774,7 +1707,6 @@ https://semaphoreci.com/blog/continuous-container-vulnerability-testing-with-tri
 - Job qui exporte ET versionne automatiquement les pipelines
 
 ---
->>>>>>> 4c68270b3359b5137682bdbe84deece31fae5409
 
 ## Conclusion
 
