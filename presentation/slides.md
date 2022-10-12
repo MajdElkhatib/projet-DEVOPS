@@ -506,7 +506,7 @@ _header: 'Schéma complet'
 shellcheck $(find . -type f -name "*.sh")
 ```
 
-```log
+```bash
 In ./infrastructure/docker/install_docker.sh line 14:
 if [[ !(-z "$ENABLE_ZSH")  &&  ($ENABLE_ZSH == "true") ]]
        ^-- SC1035: You are missing a required space here.
@@ -558,7 +558,7 @@ docker run --rm -v /home/vagrant/ajc-projet-final/manifests/:/dir stackrox/kube-
 docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
 ```
 
-```log
+```bash
 -:7 DL3013 warning: Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
 -:7 DL3018 warning: Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
 -:7 DL3042 warning: Avoid use of cache directory with pip. Use `pip install --no-cache-dir <package>`
