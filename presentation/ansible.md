@@ -40,6 +40,7 @@ Déploie 2 conteneurs avec le template docker-compose  :
 templates/docker-compose.yml.j2
 
 ```yaml
+# Template docker-compose for odoo
 version: '3.3'
 services:
 
@@ -86,7 +87,6 @@ defaults/main.yml
 ``` yaml
 # defaults file for odoo_role
 
-PGADMIN_PORT: "8082"
 DB_USER: "odoo"
 DB_PASS: "odoo"
 DB_NAME: "postgres"
@@ -139,6 +139,7 @@ Déploie deux conteneurs via les templates docker-compose et servers :
 templates/docker-compose.yml.j2
 
 ```yaml
+# Template docker-compose for pgadmin and ic-webapp
 version: '3.3'
 services:
     {{ SERVICE_PGADMIN }}:
