@@ -312,7 +312,26 @@ fi
   ```bash
   kubectl create secret generic  odoo-pgsql-password --from-literal=odoo=YOUR_PASSWORD -n icgroup
   ```
+---
 
+- Pré-génération des manifestes
+
+Pour avoir la trame du template container dans le deployment
+```bash
+kubectl run --image=postgres:13 pod pgsql -n icgroup -l env=prod -l
+app=odoo-pgsql --env POSTGRES_DB=postgres --env POSTGRES_USER=odoo
+--port=5432 --dry-run=client -o yaml
+```
+
+Pour avoir la trame du deployment
+```bash
+kubectl create deploy bdd-odoo --image postgres:13 -n icgroup
+--port=5432 --replicas=1 --dry-run=client -o yaml
+```
+Pour avoir la trame du service
+```bash
+ kubectl expose deploy bdd-odoo --port=5433 --type=ClusterIP --target-port=5432 --name=service-bdd -n icgroup --dry-run=client -o yaml
+ ```
 ---
 
 - PVCs (pour les applications où cela est nécessaire)
@@ -343,9 +362,23 @@ _header: 'Schéma des PVC et PV généré par longhorn'
 ---
 
 - Deploiements
-  - Réplicaset
-  - Label : env=prod et app=...
-  - security-context
+
+Un Deployment fournit des mises à jour déclaratives pour les Pods et les ReplicaSets.
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: icgroup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+      env: prod
+```
+
+---
 
 ---
 
