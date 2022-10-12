@@ -117,18 +117,6 @@ pipeline {
             }
         }
 
-        stage ('Build docker image') {
-            when { changeset "ic-webapp/releases.txt" }
-            steps{
-                script{
-                    sh '''
-                        cd 'ic-webapp';
-                        docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
-                    '''
-                }
-            }
-        }
-
         stage("Trivy scan") {
             agent any
             steps {
@@ -150,6 +138,19 @@ pipeline {
                 }
             }
         }
+
+        stage ('Build docker image') {
+            when { changeset "ic-webapp/releases.txt" }
+            steps{
+                script{
+                    sh '''
+                        cd 'ic-webapp';
+                        docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
+                    '''
+                }
+            }
+        }
+ 
         stage ('Test docker image') {
             when { changeset "ic-webapp/releases.txt"}
             steps{
