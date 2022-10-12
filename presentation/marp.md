@@ -1,6 +1,6 @@
 ---
 marp: true
-theme: uncover
+theme: 'ajc'
 header: 'PROJET FINAL DEVOPS'
 footer: 'Groupe 3'
 paginate: true
@@ -24,6 +24,14 @@ https://marpit.marp.app/directives
 # MARP cli
 
 https://github.com/marp-team/marp-cli
+
+---
+
+# Customisation
+
+https://marpit.marp.app/theme-css
+
+https://github.com/marp-team/marpit/blob/main/docs/theme-css.md
 
 ---
 
