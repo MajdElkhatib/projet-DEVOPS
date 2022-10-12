@@ -355,11 +355,14 @@ spec:
 ```
 ---
 
-<!--
-_header: 'Schéma des PVC et PV généré par longhorn'
- -->
+<h1><span style="display:block;text-align:center">Liste des PVC</span></h1>
 
-PVC : ![bg h:50% w:50%](./images/k8s-graph-pvc.svg) PV:  ![bg h:50% w:50%](./images/k8s-graph-pv.svg)
+<span style="display:block;text-align:center">![h:100% w:100%](./images/k8s-graph-pvc.svg)</span>
+
+<h1><span style="display:block;text-align:center">Liste des PV générés par longhorn</span></h1>
+
+<span style="display:block;text-align:center"> ![bg h:50% w:50%](./images/k8s-graph-pv.svg)</span>
+
 
 ---
 
