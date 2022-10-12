@@ -238,6 +238,7 @@ Comment l'intégrer dans notre repo git ?
 - Git subtrees -> pas le temps
 
 ---
+<style scoped>section { font-size: 2em; }</style>
 
 Pour cela un fichier Dockerfile a été créé enfin de générer une image.
 
@@ -396,7 +397,7 @@ fi
 - Pré-génération des manifestes:
 
 ---
-<style scoped>section blockquote { font-size: 40px;white-space: pre-wrap }</style>
+<style scoped>section { font-size: 2em;}</style>
 
 Trame du template container dans le deployment
 ```bash
@@ -489,6 +490,7 @@ spec:
 ```
 
 ---
+<style scoped>section { font-size: 2em;}</style>
 
 ```yaml
       containers:
