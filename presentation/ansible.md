@@ -6,7 +6,6 @@ footer: 'Groupe 3'
 paginate: true
 ---
 
-
 ## Partie 2
 
 ---
