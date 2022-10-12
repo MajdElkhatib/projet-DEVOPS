@@ -250,5 +250,115 @@ docker push sh0t1m3/${image}:1.0
 ## Partie 2
 
 ---
+### Mise en place d’un pipeline CI/CD
+
+
+
+---
+
+### Ansible
+
+---
+
+
+
+### Création des Rôles Ansible
+
+Déployer des conteneurs docker avec 2 rôles : 
+
+- odoo_role : lance 2 conteneurs celui de odoo et celui de la base de donnée postgres
+- pgadmin_role :  lance le site vitrine ic-webapp et un conteneur pgadmin pour visualiser la base de donnée postgres de odoo
+
+---
+
+### Rôle Odoo
+Déploye 2 conteneurs avec le template docker-compose:
+- Conteneur odoo
+- Conteneur postgres
+
+---
+
+templates/docker-compose.yml.j2
+
+```bash
+
+services:
+
+    {{ SERVICE_POSTGRES }}:
+        environment:
+            - 'POSTGRES_USER={{ DB_USER }}'
+            - 'POSTGRES_PASSWORD={{ DB_PASS }}'
+            - 'POSTGRES_DB={{ DB_NAME }}'
+        networks:
+            - {{ NETWORK_NAME }}
+        volumes:
+            - 'pgdata:{{ MOUNT_POINT_POSTGRES }}'
+        container_name: {{ CONTAINER_NAME_POSTGRES }}
+        image: 'postgres:13'
+        ports:
+            - '{{ POSTGRES_PORT }}:5432'
+    {{ SERVICE_ODOO }}:
+        depends_on:
+            - {{ SERVICE_POSTGRES }}
+        ports:
+            - '{{ ODOO_PORT }}:8069'
+        container_name: {{ CONTAINER_NAME_ODOO }}
+        networks:
+            - {{ NETWORK_NAME }}
+        volumes:
+            - 'odoo-web-data:/var/lib/odoo'
+        environment:
+            - 'USER={{ DB_USER }}'
+            - 'PASSWORD={{ DB_PASS }}'
+            - 'HOST={{ DB_NAME }}'
+        image: odoo:13
+
+volumes:
+    odoo-web-data:
+    pgdata:
+networks:
+    {{ NETWORK_NAME }}:
+      driver: bridge
+```
+
+---
+
+templates/docker-compose.yml.j2
+
+
+---
+
+defaults/main.yml
+
+---
+
+tasks/main.yml
+
+---
+
+### Rôle PgAdmin
+
+---
+
+Déploye deux conteneurs via le template docker-compose :
+
+- pgadmin
+- ic-webapp
+
+----
+
+templates/docker-compose.yml.j2
+
+
+---
+
+defaults/main.yml
+
+---
+
+tasks/main.yml
+
+---
+
 
 ## Conclusion
