@@ -117,6 +117,24 @@ pipeline {
             }
         }
 
+        stage ('Build docker image') {
+            when {
+                anyOf{
+                    changeset "ic-webapp/releases.txt"
+                    changeset "**/Dockerfile"
+                }
+
+            }
+            steps{
+                script{
+                    sh '''
+                        cd 'ic-webapp';
+                        docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
+                    '''
+                }
+            }
+        }
+
         stage("Trivy scan") {
             agent any
             steps {
@@ -135,24 +153,6 @@ pipeline {
                     archiveArtifacts "trivy-odoo13.log"
                     archiveArtifacts "trivy-postgres13.log"
                     archiveArtifacts "trivy-pgadmin4.log"
-                }
-            }
-        }
-
-        stage ('Build docker image') {
-            when {
-                anyOf{
-                    changeset "ic-webapp/releases.txt"
-                    changeset "**/Dockerfile"
-                }
-
-            }
-            steps{
-                script{
-                    sh '''
-                        cd 'ic-webapp';
-                        docker build -t ${USER_NAME}/${IMAGE_NAME}:${IMAGE_TAG} .;
-                    '''
                 }
             }
         }
