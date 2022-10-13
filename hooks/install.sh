@@ -9,4 +9,6 @@ pre-commit --version
 echo "Activation des hooks de pre-commit:"
 pre-commit install
 
+echo "Pour lancer pre-commit sur tous les fichiers:"
+echo "pre-commit run --all-files"
 echo "Fin du script d'installation de pre-commit"
