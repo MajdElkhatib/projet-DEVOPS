@@ -124,11 +124,15 @@ Source: https://www.votre-it-facile.fr/travail-collaboratif-et-travail-cooperati
 - Versionnement
   - Git
   - Github
-  - Gitkraken: client Git beau et ergonomique
+  - Gitkraken: client Git **beau** et **ergonomique**
 
 - Infrastructure
   - Virtualbox
   - Vagrant (outil de provisionning)
+
+---
+
+![bg w:100%](./images/gitkraken-interface.png)
 
 ---
 
