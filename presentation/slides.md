@@ -1784,6 +1784,10 @@ stage("Trivy scan") {
 
 ---
 
+![bg w:100%](./images/Jenkins-github-webhook.png)
+
+---
+
 ### Problèmes rencontrés avec Jenkins
 
 - Version pas à jour
