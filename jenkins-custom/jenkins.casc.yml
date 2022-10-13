@@ -6,7 +6,7 @@ credentials:
           description: "Token dockerhub"
           id: "dockerhub"
           scope: GLOBAL
-          secret: "{AQAAABAAAAAw632BD8V0u3jO0s90yYiMwllBr6OzIrtmGMqWAEvtIDcqXa2XCyH2WBJPrmSdH9fPnShuX2v4AMjjUbicqwo2Ag==}"
+          secret: "dckr_pat_fth522eS-yJQYSygXlZh9V51_3s"
       - usernamePassword:
           id: "ansible_user_credentials"
           password: "vagrant"
