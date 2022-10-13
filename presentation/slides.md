@@ -1731,6 +1731,8 @@ stage ('Test full deployment') {
 
 - Attention aux redirections HTTP
 - Attention au délai entre la fin d'Ansible et la disponibilité du site web
+- Attention si on change le login et mot de passe de la base de données il faut supprimer le volume pgadmin
+  avant de relancer le docker-compose up -d, bien entendu cette action supprime les données donc il faut éviter ce changement.
 
 ---
 
