@@ -128,7 +128,7 @@ Source: https://www.votre-it-facile.fr/travail-collaboratif-et-travail-cooperati
 
 - Infrastructure
   - Virtualbox
-  - Vagrant
+  - Vagrant (outil de provisionning)
 
 ---
 
@@ -244,20 +244,22 @@ Pour cela un fichier Dockerfile a été créé enfin de générer une image.
 
 ```docker
 # Dockerfile ic-webapp
-FROM alpine:3.6
+FROM python:3.6-alpine
+
 ENV ODOO_URL=""
 ENV PGADMIN_URL=""
 # Install python and pip
-RUN apk add --no-cache --update python3 py3-pip bash && \
+RUN apk add --no-cache --update bash && \
         # Install dependencies
-        pip3 install Flask && \
-        # Add a Group and user icwebapp
+        pip3 --no-cache-dir install Flask && \
+        # Add a user icwebapp
         addgroup -S icwebapp && \
         adduser -S icwebapp -G icwebapp
 # Add our code
 COPY --chown=icwebapp:icwebapp ic-webapp /opt/ic-webapp/
 USER icwebapp
 WORKDIR /opt/ic-webapp
+
 EXPOSE 8080
 CMD [ "python3", "app.py" ]
 ```
@@ -294,7 +296,7 @@ curl http://localhost:${port}
 
 ---
 
-Une fois l'image construite, et un conteneur créé à partir de cette image a été testé. Nous pouvons publier l'image sur le registry dockerhub.
+Une fois l'image construite, et validée après le test d'un conteneur. Nous pouvons publier l'image sur le registry dockerhub.
 
 ```bash
 #!/bin/bash
@@ -371,73 +373,36 @@ fi
 
 ---
 
-#### Architecture du namespace
+#### Architecture du namespace **icgroup**
 
 ![w:1100](./images/schema-kubernetes.png)
 
 
 ---
-<!-- _class: toto -->
-#### Les manifests
-
-- Namespace
-  ```bash
-  kubectl create ns icgroup
-  ```
-
-- Secrets
-  La génération des secrets doit etre manuelle pour éviter un stockage du mot de passe.
-
-  ```bash
-  kubectl create secret generic  odoo-pgsql-password --from-literal=odoo=YOUR_PASSWORD -n icgroup
-
-  kubectl create secret generic  pgadmin --from-literal=pgadmin-password=YOUR_PASSWORD -n icgroup --dry-run=client -o yaml >10-secret_pgadmin.yaml
-  ```
-
-- Pré-génération des manifestes:
-
----
 <style scoped>section { font-size: 2em;}</style>
-
-Trame du template container dans le deployment
+Les fichiers descriptifs yaml (manifestes) pour kubernetes
 ```bash
-kubectl run --image=postgres:13 pod pgsql -n icgroup -l \
-env=prod -l app=odoo-pgsql --env POSTGRES_DB=postgres \
---env POSTGRES_USER=odoo --port=5432 --dry-run=client -o yaml
+# Le namespace
+kubectl apply -f 01-create-namespace.yml
+kubectl create secret generic  odoo-pgsql-password --from-literal=odoo=YOUR_PASSWORD -n icgroup
+kubectl create secret generic  pgadmin --from-literal=pgadmin-password=YOUR_PASSWORD -n icgroup
+# La base de données
+kubectl apply -f  02-pvc-postgresl.yml
+kubectl apply -f 04-BDD_Odoo.yml
+kubectl apply -f 05-service-pgsql.yml
+# L'ERP Odoo
+kubectl apply -f 06-pvc-odoo.yml
+kubectl apply -f 07-Odoo_Web.yml
+kubectl apply -f 08-odoo-service.yml
+# PGadmin
+kubectl apply -f 09-pvc-pgadmin.yml
+kubectl apply -f 11-config_map-pgadmin.yml
+kubectl apply -f 12-pgadmin.yml
+kubectl apply -f 13-pgadmin-service.yml
+# IC Webapp (site vitrine)
+kubectl apply -f 14-ic-webapp.yml
+kubectl apply -f 15-ic-webapp-service.yml
 ```
-
-Trame du deployment
-```bash
-kubectl create deploy bdd-odoo --image postgres:13 -n icgroup \
---port=5432 --replicas=1 --dry-run=client -o yaml
-```
-
-Trame du service
-```bash
-kubectl expose deploy bdd-odoo --port=5433 --type=ClusterIP \
---target-port=5432 --name=service-bdd -n icgroup --dry-run=client -o yaml
-```
-
----
-
-- PVCs (pour les applications où cela est nécessaire)
-  - Storageclass Longhorn
-
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: data-postgres-claim
-  namespace: icgroup
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: "longhorn"
-  resources:
-    requests:
-      storage: 2Gi
-```
-
 ---
 
 Liste des PVC
@@ -493,46 +458,46 @@ spec:
 <style scoped>section { font-size: 2em;}</style>
 
 ```yaml
-      containers:
-        - name: pgadmin
-#          securityContext:
-#            readOnlyRootFilesystem: true
-          image: dpage/pgadmin4:6.14
-          env:
-            - name: PGADMIN_LISTEN_ADDRESS
-              value: 0.0.0.0
-            - name: PGADMIN_PORT
-              value: "80"
-            - name: PGADMIN_DEFAULT_EMAIL
-              value: user@domain.com
-            - name: PGADMIN_DEFAULT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: pgadmin
-                  key: pgadmin-password
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
+containers:
+  - name: pgadmin
+    #securityContext:
+      #readOnlyRootFilesystem: true
+    image: dpage/pgadmin4:6.14
+    env:
+      - name: PGADMIN_LISTEN_ADDRESS
+        value: 0.0.0.0
+      - name: PGADMIN_PORT
+        value: "80"
+      - name: PGADMIN_DEFAULT_EMAIL
+        value: user@domain.com
+      - name: PGADMIN_DEFAULT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: pgadmin
+            key: pgadmin-password
+    ports:
+      - name: http
+        containerPort: 80
+        protocol: TCP
 
-          volumeMounts:
-            - name: pgadmin-config
-              mountPath: /pgadmin4/servers.json
-              subPath: servers.json
-              readOnly: true
-            - name: pgadmin-data
-              mountPath: /var/lib/pgadmin
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-          resources: {}
-#            requests:
-#              memory: "300Mi"
-#              cpu: "100m"
-#            limits:
-#              memory: "300Mi"
-#              cpu: "200m"
+    volumeMounts:
+      - name: pgadmin-config
+        mountPath: /pgadmin4/servers.json
+        subPath: servers.json
+        readOnly: true
+      - name: pgadmin-data
+        mountPath: /var/lib/pgadmin
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 80
+    resources: {}
+      #requests:
+        #memory: "300Mi"
+        #cpu: "100m"
+      #limits:
+        #memory: "300Mi"
+        #cpu: "200m"
 ```
 
 ---
@@ -568,13 +533,17 @@ Liste des déploiements
 ![w:500](./images/k8s-graph-deploy.svg)
 
 ---
+<style scoped>section { font-size: 1.5em; }</style>
 
 - Services
   - ClusterIP
   - NodePort
-  - Loadbalancing(round-robin)
 
----
+Exemple de génération de fichier en ligne de commande
+```
+kubectl expose deploy bdd-odoo --port=5432 --type=ClusterIP \
+--target-port=5432 --name=odoo-postgres -n icgroup -o yaml --dry-run=client
+```
 
 ```yaml
 apiVersion: v1
@@ -582,22 +551,22 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-     env: prod
-     app: ic-webapp
-  name: ic-webapp-service
+    app: odoo-pgsql
+    env: prod
+  name: odoo-postgres
   namespace: icgroup
 spec:
   ports:
-  - port: 25000
+  - port: 5432
     protocol: TCP
-    targetPort: 8080
-    nodePort: 31500
+    targetPort: 5432
   selector:
+    app: odoo-pgsql
     env: prod
-    app: ic-webapp
-  type: NodePort
+  type: ClusterIP
 status:
   loadBalancer: {}
+
 ```
 
 ---
@@ -610,7 +579,51 @@ Liste des services
 
 Schéma complet
 
-![bg w:80%](./images/k8s-graph-all.svg)
+![bg w:70%](./images/k8s-graph-all.svg)
+
+---
+<style scoped>section { font-size: 1.7em;}</style>
+
+Architecture fonctionnelle :
+```bash
+[vagrant@icwebapp manifests]$ kubectl get all -n icgroup
+NAME                            READY   STATUS    RESTARTS        AGE
+pod/bdd-odoo-9457f8b55-2pwnb    1/1     Running   0               57s
+pod/ic-webapp-c6cd4866c-fnhhg   1/1     Running   2 (7h59m ago)   15h
+pod/ic-webapp-c6cd4866c-p9tns   1/1     Running   2 (8h ago)      15h
+pod/odoo-web-6bb458fdcf-4wzdc   1/1     Running   0               57s
+pod/odoo-web-6bb458fdcf-v9hqp   1/1     Running   0               57s
+pod/pgadmin-75454655f7-8tp9t    1/1     Running   0               57s
+
+NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)           AGE
+service/ic-webapp-service   NodePort    10.104.163.187   <none>        25000:31500/TCP   15h
+service/odoo-postgres       ClusterIP   10.98.234.144    <none>        5432/TCP          15h
+service/odoo-web            NodePort    10.99.27.236     <none>        25000:31000/TCP   15h
+service/pgadmin             NodePort    10.110.169.153   <none>        25000:32000/TCP   15h
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/bdd-odoo    1/1     1            1           15h
+deployment.apps/ic-webapp   2/2     2            2           15h
+deployment.apps/odoo-web    2/2     2            2           15h
+deployment.apps/pgadmin     1/1     1            1           15h
+
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/bdd-odoo-9457f8b55    1         1         1       15h
+replicaset.apps/ic-webapp-c6cd4866c   2         2         2       15h
+replicaset.apps/odoo-web-6bb458fdcf   2         2         2       15h
+replicaset.apps/pgadmin-75454655f7    1         1         1       15h
+```
+---
+
+![bg w:90%](./images/k8s-icwebapp.png)
+
+---
+
+![bg w:90%](./images/k8s-odoo.png)
+
+---
+
+![bg w:90%](./images/k8s-pgadmin.png)
 
 ---
 <style scoped>section { font-size: 2em; }</style>
@@ -622,7 +635,7 @@ Schéma complet
 git clone https://github.com/Romain-Revel/ajc-projet-final-2.git
 cd ajc-projet-final-2/manifests
 ```
-Vous pouvez personnalisé l'environnement en modifiant les manifests que ce soit pour les paramètres des conteneurs ou la configuration des services.
+Vous pouvez personnaliser l'environnement en modifiant les manifests que ce soit pour les paramètres des conteneurs ou la configuration des services.
 
 Une fois configurée, il suffit de faire :
 
@@ -700,17 +713,27 @@ In ./infrastructure/minikube/install_minikube.sh line 31:
 - kube-linter pour les manifests
 ```bash
 docker run --rm -v /home/vagrant/ajc-projet-final/manifests/:/dir stackrox/kube-linter lint /dir
+KubeLinter 0.5.0-0-g5b90391fdf
+/dir/04-BDD_Odoo.yml: (object: icgroup/bdd-odoo apps/v1, Kind=Deployment) container "bdd-odoo" does not have a read-only
+ root file system (check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to true in the container
+ securityContext.)
+/dir/04-BDD_Odoo.yml: (object: icgroup/bdd-odoo apps/v1, Kind=Deployment) container "bdd-odoo" is not set to runAsNonRoot
+(check: run-as-non-root, remediation: Set runAsUser to a non-zero number and runAsNonRoot to true in your pod or container
+ securityContext. Refer to https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ for details.)
+/dir/07-Odoo_Web.yml: (object: icgroup/odoo-web apps/v1, Kind=Deployment) object has 2 replicas but does not specify
+inter pod anti-affinity (check: no-anti-affinity, remediation: Specify anti-affinity in your pod specification to
+ensure that
+the orchestrator attempts to schedule replicas on different nodes. Using podAntiAffinity, specify a
+labelSelector that
+matches pods for the deployment, and set the topologyKey to kubernetes.io/hostname. Refer to https://kubernetes.io/docs/
+concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity for details.)
 ```
 
 - hadolint pour le Dockerfile
 ```bash
 docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
-```
-
-```bash
 -:7 DL3013 warning: Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
 -:7 DL3018 warning: Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
--:7 DL3042 warning: Avoid use of cache directory with pip. Use `pip install --no-cache-dir <package>`
 ```
 ---
 
@@ -1095,13 +1118,13 @@ Ce fichier alimentera le script de lancement de l'application web vitrine.
 
 
 ```dockerfile
-FROM alpine:3.6
+FROM python:3.6-alpine
 
 ENV ODOO_URL=""
 ENV PGADMIN_URL=""
 
 # Install python and pip
-RUN apk add --no-cache --update python3 py3-pip bash && \
+RUN apk add --no-cache --update bash && \
         # Install dependencies
         pip3 install Flask && \
         # Add a Group and user icwebapp
@@ -1708,6 +1731,8 @@ stage ('Test full deployment') {
 
 - Attention aux redirections HTTP
 - Attention au délai entre la fin d'Ansible et la disponibilité du site web
+- Attention si on change le login et mot de passe de la base de données il faut supprimer le volume pgadmin
+  avant de relancer le docker-compose up -d, bien entendu cette action supprime les données donc il faut éviter ce changement.
 
 ---
 
