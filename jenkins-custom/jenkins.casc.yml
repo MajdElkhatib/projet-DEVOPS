@@ -43,11 +43,30 @@ jenkins:
               emailAddress: "rrr.revel@hotmail.fr"
           - preferredProvider:
               providerId: "default"
+        - id: "formateur"
+          password: password
+          name: "formateur"
+          properties:
+          - "apiToken"
+          - "myView"
+          - preferredProvider:
+              providerId: "default"
+          - "timezone"
+          - mailer:
+              emailAddress: "fallewi@gmail.com"
   authorizationStrategy:
     globalMatrix:
       permissions:
-        - "USER:Overall/Administer:admin"
-        - "GROUP:Overall/Read:authenticated"
+      - "GROUP:Overall/Read:authenticated"
+      - "USER:Overall/Administer:admin"
+      - "USER:Job/Build:formateur"
+      - "USER:Job/Cancel:formateur"
+      - "USER:Job/Read:formateur"
+      - "USER:Job/Workspace:formateur"
+      - "USER:Overall/Read:formateur"
+      - "USER:Run/Replay:formateur"
+      - "USER:Run/Update:formateur"
+      - "USER:View/Read:formateur"
   remotingSecurity:
       enabled: true
 
