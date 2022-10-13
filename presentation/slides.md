@@ -734,7 +734,6 @@ concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affini
 docker run --rm -i hadolint/hadolint <ajc-projet-final/ic-webapp/Dockerfile
 -:7 DL3013 warning: Pin versions in pip. Instead of `pip install <package>` use `pip install <package>==<version>` or `pip install --requirement <requirements file>`
 -:7 DL3018 warning: Pin versions in apk add. Instead of `apk add <package>` use `apk add <package>=<version>`
--:7 DL3042 warning: Avoid use of cache directory with pip. Use `pip install --no-cache-dir <package>`
 ```
 ---
 
