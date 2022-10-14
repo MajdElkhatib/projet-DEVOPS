@@ -1,2 +1,3 @@
-# ajc-projet-final-2
-Repo du projet final de la formation DevOps AJC partie 2
+# Projet-final-2
+# OP CONSULTING - AJC FORMATION - EAZYTraining
+Repo du projet final de la formation DevOps partie 2
